@@ -1,6 +1,7 @@
 import React from 'react';
 import DemoPage from './DemoPage';
 import { ExtensionsPage } from './Extensions';
+import GraphView from './GraphView';
 
 interface MainContentProps {
     isSidebarCollapsed: boolean;
@@ -188,6 +189,9 @@ const MainContent: React.FC<MainContentProps> = ({
 
             case 'extensions':
                 return <ExtensionsPage />;
+
+            case 'graph':
+                return <GraphView />;
 
             default:
                 return children || (

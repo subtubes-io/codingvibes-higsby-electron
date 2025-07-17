@@ -1,0 +1,448 @@
+/* GraphView.css - Following Higsby Design System */
+
+.graph-view {
+  height: 100vh;
+  display: flex;
+  position: relative;
+  background: #fafafa;
+}
+
+/* Main Graph Canvas */
+.graph-canvas {
+  flex: 1;
+  margin-top: 60px; /* Below top navigation */
+  margin-right: 280px; /* Space for plugins sidebar */
+  transition: margin-right 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 60px);
+  position: relative;
+}
+
+.graph-canvas.plugins-collapsed {
+  margin-right: 70px;
+}
+
+/* Graph Header */
+.graph-header {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 20px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.graph-title-section {
+  flex: 1;
+}
+
+.graph-title {
+  color: #333;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.graph-description {
+  color: #666;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.graph-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.graph-control-button {
+  background: none;
+  border: 1px solid #e5e7eb;
+  color: #666;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+
+.graph-control-button:hover {
+  background: #f8fafc;
+  border-color: #d1d5db;
+  color: #333;
+}
+
+/* Graph Workspace */
+.graph-workspace {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: 
+    radial-gradient(circle at 1px 1px, rgba(0,0,0,0.1) 1px, transparent 0);
+  background-size: 20px 20px;
+  background-color: #fafafa;
+}
+
+/* Empty Graph State */
+.empty-graph {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #666;
+  max-width: 400px;
+  padding: 40px;
+}
+
+.empty-graph-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.3;
+}
+
+.empty-graph h3 {
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+}
+
+.empty-graph p {
+  font-size: 1rem;
+  margin: 0 0 30px 0;
+  line-height: 1.5;
+}
+
+.empty-graph-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.tip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 0.9rem;
+}
+
+.tip-icon {
+  font-size: 1.2rem;
+  min-width: 24px;
+}
+
+/* Graph Nodes */
+.graph-nodes {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.graph-node {
+  position: absolute;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  min-width: 200px;
+  max-width: 300px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  cursor: move;
+  z-index: 10;
+}
+
+.graph-node:hover {
+  border-color: #667eea;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+}
+
+.graph-node.selected {
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.graph-node.dragging {
+  transform: scale(1.05);
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.3);
+  border-color: #667eea;
+  z-index: 1000;
+  cursor: grabbing !important;
+}
+
+.graph-node.dragging * {
+  pointer-events: none;
+}
+
+/* Node Header */
+.node-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.node-icon {
+  font-size: 1.2rem;
+}
+
+.node-title {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.node-remove {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  line-height: 1;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.node-remove:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Node Content */
+.node-content {
+  padding: 16px;
+}
+
+.node-plugin-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.plugin-version {
+  font-size: 0.8rem;
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  align-self: flex-start;
+  font-weight: 600;
+}
+
+.plugin-author {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.plugin-description {
+  font-size: 0.85rem;
+  color: #777;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Node Ports */
+.node-ports {
+  position: relative;
+  height: 0;
+}
+
+.input-ports {
+  position: absolute;
+  left: -6px;
+  top: -60px;
+}
+
+.output-ports {
+  position: absolute;
+  right: -6px;
+  top: -60px;
+}
+
+.port {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #667eea;
+  border-radius: 50%;
+  background: white;
+  cursor: crosshair;
+  transition: all 0.2s ease;
+}
+
+.port:hover {
+  background: #667eea;
+  transform: scale(1.2);
+}
+
+.input-port {
+  border-color: #4ade80;
+}
+
+.input-port:hover {
+  background: #4ade80;
+}
+
+.output-port {
+  border-color: #f59e0b;
+}
+
+.output-port:hover {
+  background: #f59e0b;
+}
+
+/* Selected Plugin Preview */
+.selected-plugin-preview {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 400px;
+  max-height: 300px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e5e7eb;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.graph-canvas.plugins-collapsed .selected-plugin-preview {
+  right: 90px; /* Adjust for collapsed sidebar */
+}
+
+.preview-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.preview-header h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.close-preview {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  line-height: 1;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-preview:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.preview-content {
+  padding: 16px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .graph-canvas {
+    margin-right: 0;
+  }
+  
+  .selected-plugin-preview {
+    width: 300px;
+    bottom: 80px;
+    right: 10px;
+  }
+  
+  .graph-header {
+    padding: 15px 20px;
+  }
+  
+  .graph-title {
+    font-size: 1.5rem;
+  }
+  
+  .graph-description {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .graph-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .graph-controls {
+    align-self: stretch;
+    justify-content: flex-end;
+  }
+  
+  .selected-plugin-preview {
+    width: calc(100% - 20px);
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+  }
+  
+  .empty-graph {
+    padding: 20px;
+    max-width: 300px;
+  }
+  
+  .empty-graph-icon {
+    font-size: 3rem;
+  }
+  
+  .empty-graph h3 {
+    font-size: 1.2rem;
+  }
+}
+
+/* Scrollbar Styling */
+.preview-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.preview-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.preview-content::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 3px;
+}
+
+.preview-content::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
+}
