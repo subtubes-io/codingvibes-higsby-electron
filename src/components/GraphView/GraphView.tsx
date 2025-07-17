@@ -6,6 +6,8 @@ import './GraphView.css';
 const GraphView: React.FC = () => {
     const [isPluginsSidebarCollapsed, setIsPluginsSidebarCollapsed] = useState(false);
     const [graphNodes, setGraphNodes] = useState<any[]>([]);
+    const [zoom, setZoom] = useState(1);
+    const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
 
     // Debug: Log graph nodes changes
     useEffect(() => {
@@ -30,6 +32,120 @@ const GraphView: React.FC = () => {
 
     const handleTogglePluginsSidebar = useCallback(() => {
         setIsPluginsSidebarCollapsed(prev => !prev);
+    }, []);
+
+    const handleZoomIn = useCallback(() => {
+        setZoom(prev => Math.min(prev * 1.2, 3)); // Max zoom 3x
+    }, []);
+
+    const handleZoomOut = useCallback(() => {
+        setZoom(prev => Math.max(prev / 1.2, 0.2)); // Min zoom 0.2x
+    }, []);
+
+    const handleZoomToFit = useCallback(() => {
+        setZoom(1);
+        setPanOffset({ x: 0, y: 0 });
+    }, []);
+
+    const handleExportGraph = useCallback(() => {
+        const graphData = {
+            version: "1.0.0",
+            metadata: {
+                name: "Graph Export",
+                description: "Visual plugin composition and workflow",
+                exportedAt: new Date().toISOString(),
+                zoom: zoom,
+                panOffset: panOffset
+            },
+            nodes: graphNodes.map(node => ({
+                id: node.id,
+                name: node.name,
+                type: node.type,
+                position: node.position,
+                plugin: node.plugin ? {
+                    name: node.plugin.name,
+                    version: node.plugin.version,
+                    author: node.plugin.author,
+                    description: node.plugin.description,
+                    main: node.plugin.main
+                } : null
+            }))
+        };
+
+        const jsonString = JSON.stringify(graphData, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `graph-export-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        console.log('Graph exported:', graphData);
+    }, [graphNodes, zoom, panOffset]);
+
+    const handleImportGraph = useCallback(() => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = (e) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const jsonData = JSON.parse(event.target?.result as string);
+                    
+                    // Validate the imported data structure
+                    if (jsonData.nodes && Array.isArray(jsonData.nodes)) {
+                        setGraphNodes(jsonData.nodes);
+                        
+                        // Restore view state if available
+                        if (jsonData.metadata) {
+                            if (typeof jsonData.metadata.zoom === 'number') {
+                                setZoom(jsonData.metadata.zoom);
+                            }
+                            if (jsonData.metadata.panOffset) {
+                                setPanOffset(jsonData.metadata.panOffset);
+                            }
+                        }
+                        
+                        console.log('Graph imported successfully:', jsonData);
+                    } else {
+                        console.error('Invalid graph file format');
+                        alert('Invalid graph file format. Please select a valid graph export file.');
+                    }
+                } catch (error) {
+                    console.error('Error parsing graph file:', error);
+                    alert('Error reading graph file. Please check the file format.');
+                }
+            };
+            reader.readAsText(file);
+        };
+        input.click();
+    }, []);
+
+    const handleWheel = useCallback((e: WheelEvent) => {
+        e.preventDefault();
+
+        if (e.ctrlKey || e.metaKey) {
+            // Zoom with Ctrl/Cmd + scroll
+            const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+            setZoom(prev => {
+                const newZoom = prev * zoomFactor;
+                return Math.max(0.2, Math.min(3, newZoom));
+            });
+        } else {
+            // Pan with scroll
+            setPanOffset(prev => ({
+                x: prev.x - e.deltaX,
+                y: prev.y - e.deltaY
+            }));
+        }
     }, []);
 
     const handleAddToGraph = useCallback((plugin: ExtensionManifest) => {
@@ -96,12 +212,19 @@ const GraphView: React.FC = () => {
         if (!graphWorkspace) return;
 
         const workspaceRect = graphWorkspace.getBoundingClientRect();
-        const newX = mousePositionRef.current.x - dragState.offset.x;
-        const newY = mousePositionRef.current.y - dragState.offset.y;
 
-        // Constrain to workspace bounds
-        const constrainedX = Math.max(0, Math.min(newX, workspaceRect.width - 200));
-        const constrainedY = Math.max(0, Math.min(newY, workspaceRect.height - 150));
+        // Adjust mouse coordinates for zoom and pan
+        const adjustedMouseX = (mousePositionRef.current.x - panOffset.x) / zoom;
+        const adjustedMouseY = (mousePositionRef.current.y - panOffset.y) / zoom;
+
+        const newX = adjustedMouseX - dragState.offset.x / zoom;
+        const newY = adjustedMouseY - dragState.offset.y / zoom;
+
+        // Constrain to workspace bounds (use large virtual canvas)
+        const canvasWidth = Math.max(5000, workspaceRect.width / zoom);
+        const canvasHeight = Math.max(5000, workspaceRect.height / zoom);
+        const constrainedX = Math.max(0, Math.min(newX, canvasWidth - 200));
+        const constrainedY = Math.max(0, Math.min(newY, canvasHeight - 150));
 
         setGraphNodes(prev =>
             prev.map(node =>
@@ -115,7 +238,7 @@ const GraphView: React.FC = () => {
         if (dragState.isDragging && dragState.nodeId) {
             animationFrameRef.current = requestAnimationFrame(updateNodePosition);
         }
-    }, [dragState.isDragging, dragState.nodeId, dragState.offset.x, dragState.offset.y]);
+    }, [dragState.isDragging, dragState.nodeId, dragState.offset.x, dragState.offset.y, zoom, panOffset.x, panOffset.y]);
 
     const handleMouseDown = useCallback((e: React.MouseEvent, nodeId: string) => {
         e.preventDefault();
@@ -128,9 +251,16 @@ const GraphView: React.FC = () => {
         const mouseX = e.clientX - workspaceRect.left;
         const mouseY = e.clientY - workspaceRect.top;
 
-        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-        const offsetX = e.clientX - rect.left;
-        const offsetY = e.clientY - rect.top;
+        // Get the node's current position
+        const node = graphNodes.find(n => n.id === nodeId);
+        if (!node) return;
+
+        // Calculate offset from mouse to node position (accounting for zoom and pan)
+        const nodeScreenX = node.position.x * zoom + panOffset.x;
+        const nodeScreenY = node.position.y * zoom + panOffset.y;
+
+        const offsetX = mouseX - nodeScreenX;
+        const offsetY = mouseY - nodeScreenY;
 
         mousePositionRef.current = { x: mouseX, y: mouseY };
 
@@ -140,7 +270,7 @@ const GraphView: React.FC = () => {
             startPosition: { x: mouseX, y: mouseY },
             offset: { x: offsetX, y: offsetY }
         });
-    }, []);
+    }, [graphNodes, zoom, panOffset.x, panOffset.y]);
 
     // Start animation when dragging begins
     useEffect(() => {
@@ -195,6 +325,17 @@ const GraphView: React.FC = () => {
         }
     }, [dragState.isDragging, handleMouseMove, handleMouseUp]);
 
+    // Set up wheel event listener for zoom and pan
+    useEffect(() => {
+        const workspace = graphWorkspaceRef.current;
+        if (workspace) {
+            workspace.addEventListener('wheel', handleWheel, { passive: false });
+            return () => {
+                workspace.removeEventListener('wheel', handleWheel);
+            };
+        }
+    }, [handleWheel]);
+
     // Cleanup animation frame on unmount
     useEffect(() => {
         return () => {
@@ -235,7 +376,7 @@ const GraphView: React.FC = () => {
                                 <path d="m12 1 1.2 2.2L16 2l.8 1.6 2.2-1.2v2.4l2.2 1.2L20 8l1.6.8L20 11.2V16l-1.6.8L20 19.2l-2.2 1.2L16 22l-.8-1.6L12 23l-1.2-2.2L8 22l-.8-1.6L5 21.2V16l-2.2-1.2L4 12l-1.6-.8L4 8.8V4l2.2-1.2L8 2l.8 1.6z"></path>
                             </svg>
                         </button>
-                        <button className="graph-control-button" title="Zoom to Fit">
+                        <button className="graph-control-button" title="Zoom to Fit" onClick={handleZoomToFit}>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <path d="m21 21-4.35-4.35"></path>
@@ -243,7 +384,32 @@ const GraphView: React.FC = () => {
                                 <path d="M6 11h10"></path>
                             </svg>
                         </button>
-                        <button className="graph-control-button" title="Export Graph">
+                        <button className="graph-control-button" title="Zoom In" onClick={handleZoomIn}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                                <path d="M11 6v10"></path>
+                                <path d="M6 11h10"></path>
+                            </svg>
+                        </button>
+                        <button className="graph-control-button" title="Zoom Out" onClick={handleZoomOut}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                                <path d="M6 11h10"></path>
+                            </svg>
+                        </button>
+                        <div className="zoom-indicator" title={`Zoom: ${Math.round(zoom * 100)}%`}>
+                            {Math.round(zoom * 100)}%
+                        </div>
+                        <button className="graph-control-button" title="Import Graph" onClick={handleImportGraph}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17,8 12,3 7,8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </button>
+                        <button className="graph-control-button" title="Export Graph" onClick={handleExportGraph}>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                 <polyline points="7,10 12,15 17,10"></polyline>
@@ -254,120 +420,79 @@ const GraphView: React.FC = () => {
                 </div>
 
                 <div className="graph-workspace" ref={graphWorkspaceRef}>
-                    {graphNodes.length === 0 ? (
-                        <div className="empty-graph">
-                            <div className="empty-graph-icon">
-                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                    <circle cx="18" cy="5" r="3"></circle>
-                                    <circle cx="6" cy="12" r="3"></circle>
-                                    <circle cx="18" cy="19" r="3"></circle>
-                                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-                                </svg>
-                            </div>
-                            <h3>Start Building Your Graph</h3>
-                            <p>Select plugins from the sidebar to add them to your graph</p>
-                            <div className="empty-graph-tips">
-                                <div className="tip">
-                                    <span className="tip-icon">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <path d="m9 12 2 2 4-4"></path>
-                                        </svg>
-                                    </span>
-                                    <span>Drag plugins from the sidebar to create nodes</span>
-                                </div>
-                                <div className="tip">
-                                    <span className="tip-icon">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                            <circle cx="18" cy="5" r="3"></circle>
-                                            <circle cx="6" cy="12" r="3"></circle>
-                                            <circle cx="18" cy="19" r="3"></circle>
-                                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-                                        </svg>
-                                    </span>
-                                    <span>Connect nodes to create workflows</span>
-                                </div>
-                                <div className="tip">
-                                    <span className="tip-icon">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                            <circle cx="12" cy="12" r="3"></circle>
-                                            <path d="M12 1v6m0 6v6"></path>
-                                            <path d="m9 9 3-3 3 3"></path>
-                                            <path d="m9 15 3 3 3-3"></path>
-                                        </svg>
-                                    </span>
-                                    <span>Configure node properties and parameters</span>
-                                </div>
-                            </div>
-                        </div>
-                    ) : (
+                    <div
+                        className="graph-content"
+                        style={{
+                            transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
+                            transformOrigin: '0 0',
+                            transition: dragState.isDragging ? 'none' : 'transform 0.1s ease-out'
+                        }}
+                    >
                         <div className="graph-nodes">
                             {graphNodes.map(node => (
-                                <div
-                                    key={node.id}
-                                    className={`graph-node ${dragState.isDragging && dragState.nodeId === node.id ? 'dragging' : ''}`}
-                                    style={{
-                                        left: node.position.x,
-                                        top: node.position.y,
-                                        cursor: 'grab'
-                                    }}
-                                    onMouseDown={(e) => handleMouseDown(e, node.id)}
-                                >
-                                    <div className="node-header">
-                                        <div className="node-icon">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                                <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
-                                                <line x1="16" y1="8" x2="2" y2="22"></line>
-                                                <line x1="17.5" y1="15" x2="9" y2="15"></line>
-                                            </svg>
-                                        </div>
-                                        <div className="node-title">{node.name}</div>
-                                        <button
-                                            className="node-remove"
-                                            onMouseDown={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                            }}
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                console.log('Remove button clicked for node:', node.id);
-                                                removeNodeFromGraph(node.id);
-                                            }}
-                                            title="Remove Node"
-                                        >
-                                            ×
-                                        </button>
-                                    </div>
-
-                                    <div className="node-content">
-                                        {node.plugin && (
-                                            <div className="node-plugin-info">
-                                                <div className="plugin-version">v{node.plugin.version}</div>
-                                                <div className="plugin-author">{node.plugin.author}</div>
-                                                {node.plugin.description && (
-                                                    <div className="plugin-description">
-                                                        {node.plugin.description}
-                                                    </div>
-                                                )}
+                                    <div
+                                        key={node.id}
+                                        className={`graph-node ${dragState.isDragging && dragState.nodeId === node.id ? 'dragging' : ''}`}
+                                        style={{
+                                            left: node.position.x,
+                                            top: node.position.y,
+                                            cursor: 'grab'
+                                        }}
+                                        onMouseDown={(e) => handleMouseDown(e, node.id)}
+                                    >
+                                        <div className="node-header">
+                                            <div className="node-icon">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                                    <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
+                                                    <line x1="16" y1="8" x2="2" y2="22"></line>
+                                                    <line x1="17.5" y1="15" x2="9" y2="15"></line>
+                                                </svg>
                                             </div>
-                                        )}
-                                    </div>
+                                            <div className="node-title">{node.name}</div>
+                                            <button
+                                                className="node-remove"
+                                                onMouseDown={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                }}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    console.log('Remove button clicked for node:', node.id);
+                                                    removeNodeFromGraph(node.id);
+                                                }}
+                                                title="Remove Node"
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
 
-                                    <div className="node-ports">
-                                        <div className="input-ports">
-                                            <div className="port input-port" title="Input"></div>
+                                        <div className="node-content">
+                                            {node.plugin && (
+                                                <div className="node-plugin-info">
+                                                    <div className="plugin-version">v{node.plugin.version}</div>
+                                                    <div className="plugin-author">{node.plugin.author}</div>
+                                                    {node.plugin.description && (
+                                                        <div className="plugin-description">
+                                                            {node.plugin.description}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
-                                        <div className="output-ports">
-                                            <div className="port output-port" title="Output"></div>
+
+                                        <div className="node-ports">
+                                            <div className="input-ports">
+                                                <div className="port input-port" title="Input"></div>
+                                            </div>
+                                            <div className="output-ports">
+                                                <div className="port output-port" title="Output"></div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
                         </div>
-                    )}
+                    </div>
                 </div>
 
             </div>
