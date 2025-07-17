@@ -16,12 +16,15 @@
         "dist": "npm run build:renderer && npm run build:electron && electron-builder --publish=never"
     },
     "dependencies": {
+        "adm-zip": "^0.5.16",
+        "fs-extra": "^11.3.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0"
     },
     "devDependencies": {
         "@tailwindcss/cli": "^4.1.11",
         "@tailwindcss/postcss": "^4.1.11",
+        "@types/adm-zip": "^0.5.7",
         "@types/node": "^20.0.0",
         "@types/react": "^18.2.43",
         "@types/react-dom": "^18.2.17",

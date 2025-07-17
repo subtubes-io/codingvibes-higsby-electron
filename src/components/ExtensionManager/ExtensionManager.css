@@ -1,0 +1,467 @@
+/**
+ * ExtensionManager Styles
+ * Following Higsby design system
+ */
+
+.extension-manager {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.extension-manager__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.extension-manager__loading .loading-spinner {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 1rem;
+  animation: spin 1s linear infinite;
+}
+
+.extension-manager__loading p {
+  color: #666666;
+  margin: 0;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.extension-manager__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  gap: 2rem;
+}
+
+.extension-manager__title h2 {
+  color: #333333;
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.extension-manager__title p {
+  color: #666666;
+  margin: 0;
+}
+
+.extension-manager__stats {
+  display: flex;
+  gap: 1rem;
+}
+
+.stats-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  min-width: 80px;
+}
+
+.stats-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333333;
+  line-height: 1;
+}
+
+.stats-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #666666;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.25rem;
+}
+
+.extension-manager__controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.extension-manager__filters {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filter-btn {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: #666666;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+  background: #f8fafc;
+  border-color: #d1d5db;
+}
+
+.filter-btn--active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+  color: #ffffff;
+}
+
+.refresh-btn {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: #666666;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.refresh-btn:hover {
+  background: #f8fafc;
+  border-color: #d1d5db;
+}
+
+.extension-manager__content {
+  min-height: 300px;
+}
+
+.extension-manager__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.extension-manager__empty .empty-icon {
+  color: #d1d5db;
+  margin-bottom: 1rem;
+}
+
+.extension-manager__empty h3 {
+  color: #333333;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.extension-manager__empty p {
+  color: #666666;
+  margin: 0;
+}
+
+/* Extension Grid Styles */
+.extension-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Extension Card Styles */
+.extension-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.extension-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.extension-card--enabled {
+  border-color: #667eea;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+}
+
+.extension-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.extension-card__icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.extension-card__icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.extension-card__default-icon {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.extension-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.extension-card__name {
+  color: #333333;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+  word-break: break-word;
+}
+
+.extension-card__version {
+  color: #666666;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.extension-card__status {
+  flex-shrink: 0;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-enabled {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-disabled {
+  background: #f3f4f6;
+  color: #666666;
+}
+
+.status-error {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.status-loading {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.status-installed {
+  background: #f8fafc;
+  color: #475569;
+}
+
+.extension-card__body {
+  margin-bottom: 1.5rem;
+}
+
+.extension-card__description {
+  color: #666666;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.extension-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.meta-label {
+  color: #888888;
+  font-weight: 500;
+  min-width: 70px;
+  flex-shrink: 0;
+}
+
+.meta-value {
+  color: #666666;
+  word-break: break-word;
+}
+
+.extension-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.tag {
+  background: #e5e7eb;
+  color: #666666;
+  padding: 0.125rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.extension-card__error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-top: 1rem;
+}
+
+.extension-card__error p {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.extension-card__footer {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1rem;
+}
+
+/* Extension Actions Styles */
+.extension-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: #666666;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toggle-btn--enabled {
+  background: #dcfce7;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.toggle-btn--enabled:hover:not(:disabled) {
+  background: #bbf7d0;
+  border-color: #86efac;
+}
+
+.toggle-btn--disabled:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #d1d5db;
+}
+
+.retry-btn {
+  background: #eff6ff;
+  border-color: #dbeafe;
+  color: #2563eb;
+}
+
+.retry-btn:hover:not(:disabled) {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.delete-btn {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+.delete-btn:hover:not(:disabled) {
+  background: #fecaca;
+  border-color: #f87171;
+}
+
+.btn-spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .extension-manager {
+    padding: 0 1rem;
+  }
+
+  .extension-manager__header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .extension-manager__stats {
+    justify-content: space-between;
+  }
+
+  .extension-manager__controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .extension-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .extension-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .extension-card__status {
+    align-self: flex-start;
+  }
+
+  .extension-actions {
+    flex-direction: column;
+  }
+
+  .action-btn {
+    justify-content: center;
+  }
+}

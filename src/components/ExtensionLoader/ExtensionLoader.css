@@ -1,0 +1,447 @@
+/**
+ * ExtensionLoader Styles
+ * Following Higsby design system
+ */
+
+.extension-loader {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.extension-loader__loading,
+.extension-loader__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  min-height: 400px;
+}
+
+.extension-loader__loading .loading-spinner {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 1rem;
+  animation: spin 1s linear infinite;
+}
+
+.extension-loader__loading p,
+.extension-loader__empty p {
+  color: #666666;
+  margin: 0;
+}
+
+.extension-loader__empty .empty-icon {
+  color: #d1d5db;
+  margin-bottom: 1rem;
+}
+
+.extension-loader__empty h3 {
+  color: #333333;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.extension-loader__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  gap: 2rem;
+}
+
+.extension-loader__title h2 {
+  color: #333333;
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.extension-loader__title p {
+  color: #666666;
+  margin: 0;
+}
+
+.refresh-btn {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: #666666;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.refresh-btn:hover {
+  background: #f8fafc;
+  border-color: #d1d5db;
+}
+
+.extension-loader__selector {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.extension-loader__selector label {
+  color: #333333;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.extension-select {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: #333333;
+  min-width: 300px;
+  cursor: pointer;
+}
+
+.extension-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.extension-loader__content {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  min-height: 400px;
+  overflow: hidden;
+}
+
+.extension-loader__no-selection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: #666666;
+  font-style: italic;
+}
+
+/* Dynamic Component Styles */
+.dynamic-component-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.dynamic-component-header {
+  background: #f8fafc;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.extension-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.extension-name {
+  color: #333333;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.extension-version {
+  background: #e5e7eb;
+  color: #666666;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.extension-meta {
+  color: #888888;
+  font-size: 0.875rem;
+}
+
+.extension-author {
+  font-style: italic;
+}
+
+.dynamic-component-content {
+  flex: 1;
+  padding: 1.5rem;
+  overflow: auto;
+}
+
+/* Loading States */
+.dynamic-component-loading,
+.component-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.loading-content .loading-spinner {
+  width: 32px;
+  height: 32px;
+  animation: spin 1s linear infinite;
+}
+
+.loading-content h3 {
+  color: #333333;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.loading-content p {
+  color: #666666;
+  margin: 0;
+}
+
+.component-loading {
+  min-height: 200px;
+  gap: 0.5rem;
+}
+
+.component-loading .loading-spinner {
+  width: 24px;
+  height: 24px;
+}
+
+.component-loading span {
+  color: #666666;
+  font-size: 0.875rem;
+}
+
+/* Error States */
+.dynamic-component-error,
+.extension-error-boundary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 2rem;
+}
+
+.error-content,
+.error-boundary-content {
+  text-align: center;
+  max-width: 600px;
+}
+
+.error-icon {
+  color: #dc2626;
+  margin-bottom: 1rem;
+}
+
+.error-content h3,
+.error-boundary-content h3 {
+  color: #333333;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.error-content p,
+.error-boundary-content p {
+  color: #666666;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.error-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.retry-btn,
+.reload-btn {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: #666666;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.retry-btn {
+  background: #eff6ff;
+  border-color: #dbeafe;
+  color: #2563eb;
+}
+
+.retry-btn:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.reload-btn {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.reload-btn:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.error-details {
+  text-align: left;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.error-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 1rem;
+}
+
+.error-details[open] summary {
+  margin-bottom: 1rem;
+}
+
+.error-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.error-section h4 {
+  color: #333333;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.error-section code,
+.error-message,
+.error-stack {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 0.75rem;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.75rem;
+  color: #dc2626;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 0;
+}
+
+.error-section code {
+  color: #333333;
+  display: block;
+}
+
+/* Empty State */
+.dynamic-component-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 2rem;
+}
+
+.empty-content {
+  text-align: center;
+  max-width: 400px;
+}
+
+.empty-content h3 {
+  color: #333333;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.empty-content p {
+  color: #666666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .extension-loader {
+    padding: 0 1rem;
+  }
+
+  .extension-loader__header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .extension-loader__selector {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .extension-select {
+    min-width: auto;
+  }
+
+  .dynamic-component-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .dynamic-component-content {
+    padding: 1rem;
+  }
+
+  .error-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .retry-btn,
+  .reload-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,4 +1,5 @@
 import { app, BrowserWindow, shell, ipcMain } from 'electron'
+import { spawn, ChildProcess } from 'node:child_process'
 import * as path from 'path'
 
 // __dirname is available in CommonJS mode
@@ -32,6 +33,81 @@ if (!app.requestSingleInstanceLock()) {
 
 // Environment variables
 const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL || (process.env.IS_DEV ? 'http://localhost:5174' : null)
+
+// Server management
+let serverProcess: ChildProcess | null = null
+const SERVER_PORT = 8888
+
+function startServer(): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const serverPath = path.join(__dirname, '../example-server/dist/server.js')
+
+        console.log('🚀 Starting Node.js server...')
+
+        serverProcess = spawn('node', [serverPath], {
+            env: { ...process.env, PORT: SERVER_PORT.toString() },
+            stdio: ['pipe', 'pipe', 'pipe']
+        })
+
+        // Handle server output
+        serverProcess.stdout?.on('data', (data) => {
+            console.log(`[Server]: ${data.toString().trim()}`)
+        })
+
+        serverProcess.stderr?.on('data', (data) => {
+            console.error(`[Server Error]: ${data.toString().trim()}`)
+        })
+
+        // Handle server start
+        serverProcess.on('spawn', () => {
+            console.log('✅ Server process spawned successfully')
+            // Give the server a moment to start up
+            setTimeout(() => resolve(), 2000)
+        })
+
+        // Handle server errors
+        serverProcess.on('error', (error) => {
+            console.error('❌ Failed to start server:', error)
+            reject(error)
+        })
+
+        // Handle server exit
+        serverProcess.on('exit', (code, signal) => {
+            console.log(`🔄 Server process exited with code ${code} and signal ${signal}`)
+            serverProcess = null
+        })
+    })
+}
+
+function stopServer(): Promise<void> {
+    return new Promise((resolve) => {
+        if (!serverProcess) {
+            resolve()
+            return
+        }
+
+        console.log('🛑 Stopping Node.js server...')
+
+        serverProcess.on('exit', () => {
+            console.log('✅ Server stopped successfully')
+            serverProcess = null
+            resolve()
+        })
+
+        // Try graceful shutdown first
+        serverProcess.kill('SIGTERM')
+
+        // Force kill after timeout
+        setTimeout(() => {
+            if (serverProcess) {
+                console.log('🔨 Force killing server process...')
+                serverProcess.kill('SIGKILL')
+                serverProcess = null
+                resolve()
+            }
+        }, 5000)
+    })
+}
 
 let win: BrowserWindow | null = null
 const preload = path.join(__dirname, 'preload.js')
@@ -73,11 +149,47 @@ async function createWindow() {
     })
 }
 
-app.whenReady().then(createWindow)
+app.whenReady().then(async () => {
+    try {
+        // Start the server first
+        await startServer()
+
+        // Then create the window
+        await createWindow()
+    } catch (error) {
+        console.error('Failed to start application:', error)
+        app.quit()
+    }
+})
 
 app.on('window-all-closed', () => {
     win = null
     if (process.platform !== 'darwin') app.quit()
+})
+
+// Handle app shutdown
+app.on('before-quit', async (event) => {
+    if (serverProcess) {
+        event.preventDefault()
+        console.log('🔄 Shutting down server before quit...')
+
+        try {
+            await stopServer()
+            app.quit()
+        } catch (error) {
+            console.error('Error stopping server:', error)
+            app.quit()
+        }
+    }
+})
+
+// Handle force quit
+app.on('will-quit', async (event) => {
+    if (serverProcess) {
+        event.preventDefault()
+        await stopServer()
+        process.exit(0)
+    }
 })
 
 app.on('second-instance', () => {
@@ -111,5 +223,24 @@ ipcMain.handle('open-win', (_, arg) => {
         childWindow.loadURL(`${VITE_DEV_SERVER_URL}#${arg}`)
     } else {
         childWindow.loadFile(indexHtml, { hash: arg })
+    }
+})
+
+// IPC handlers for server status
+ipcMain.handle('get-server-status', () => {
+    return {
+        running: serverProcess !== null,
+        port: SERVER_PORT,
+        url: `http://localhost:${SERVER_PORT}`
+    }
+})
+
+ipcMain.handle('restart-server', async () => {
+    try {
+        await stopServer()
+        await startServer()
+        return { success: true }
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : String(error) }
     }
 })

@@ -8,6 +8,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // Example API methods
     openWindow: (url: string) => ipcRenderer.invoke('open-win', url),
 
+    // Server management
+    getServerStatus: () => ipcRenderer.invoke('get-server-status'),
+    restartServer: () => ipcRenderer.invoke('restart-server'),
+
     // Listen for main process messages
     onMainMessage: (callback: (message: string) => void) => {
         ipcRenderer.on('main-process-message', (_event, message) => callback(message))

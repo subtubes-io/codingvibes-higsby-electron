@@ -1,0 +1,13 @@
+{
+    "name": "Sample Counter Extension",
+    "version": "1.0.0",
+    "description": "A simple counter extension to demonstrate the extension system",
+    "author": "Higsby Team",
+    "main": "index.js",
+    "tags": [
+        "demo",
+        "counter",
+        "example"
+    ],
+    "minAppVersion": "1.0.0"
+}

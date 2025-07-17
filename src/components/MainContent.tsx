@@ -1,5 +1,6 @@
 import React from 'react';
 import DemoPage from './DemoPage';
+import { ExtensionsPage } from './Extensions';
 
 interface MainContentProps {
     isSidebarCollapsed: boolean;
@@ -184,6 +185,9 @@ const MainContent: React.FC<MainContentProps> = ({
                         </div>
                     </div>
                 );
+
+            case 'extensions':
+                return <ExtensionsPage />;
 
             default:
                 return children || (
