@@ -61,6 +61,7 @@ const GraphView: React.FC = () => {
                 id: node.id,
                 name: node.name,
                 type: node.type,
+                extension: node.extension,
                 position: node.position,
                 plugin: node.plugin ? {
                     name: node.plugin.name,
@@ -75,7 +76,7 @@ const GraphView: React.FC = () => {
         const jsonString = JSON.stringify(graphData, null, 2);
         const blob = new Blob([jsonString], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
-        
+
         const link = document.createElement('a');
         link.href = url;
         link.download = `graph-export-${new Date().toISOString().split('T')[0]}.json`;
@@ -99,11 +100,11 @@ const GraphView: React.FC = () => {
             reader.onload = (event) => {
                 try {
                     const jsonData = JSON.parse(event.target?.result as string);
-                    
+
                     // Validate the imported data structure
                     if (jsonData.nodes && Array.isArray(jsonData.nodes)) {
                         setGraphNodes(jsonData.nodes);
-                        
+
                         // Restore view state if available
                         if (jsonData.metadata) {
                             if (typeof jsonData.metadata.zoom === 'number') {
@@ -113,7 +114,7 @@ const GraphView: React.FC = () => {
                                 setPanOffset(jsonData.metadata.panOffset);
                             }
                         }
-                        
+
                         console.log('Graph imported successfully:', jsonData);
                     } else {
                         console.error('Invalid graph file format');
@@ -169,9 +170,10 @@ const GraphView: React.FC = () => {
             const col = existingNodeCount % gridSize;
 
             const newNode = {
-                id: plugin.name.toLowerCase().replace(/\s+/g, '-'),
+                id: crypto.randomUUID(), // Generate unique UUID for each node
                 name: plugin.name,
                 type: 'plugin',
+                extension: plugin.name.toLowerCase().replace(/\s+/g, '-'), // Extension identifier
                 plugin: plugin,
                 position: {
                     x: offsetX + (col * spacing),
@@ -181,12 +183,7 @@ const GraphView: React.FC = () => {
 
             console.log('Creating new node:', newNode);
 
-            // Check if node already exists
-            const exists = prev.some(node => node.id === newNode.id);
-            if (exists) {
-                console.log('Node already exists, not adding');
-                return prev;
-            }
+            // Since we use UUIDs, each node is unique - no need to check for duplicates
             console.log('Adding new node to graph');
             return [...prev, newNode];
         });
@@ -430,67 +427,67 @@ const GraphView: React.FC = () => {
                     >
                         <div className="graph-nodes">
                             {graphNodes.map(node => (
-                                    <div
-                                        key={node.id}
-                                        className={`graph-node ${dragState.isDragging && dragState.nodeId === node.id ? 'dragging' : ''}`}
-                                        style={{
-                                            left: node.position.x,
-                                            top: node.position.y,
-                                            cursor: 'grab'
-                                        }}
-                                        onMouseDown={(e) => handleMouseDown(e, node.id)}
-                                    >
-                                        <div className="node-header">
-                                            <div className="node-icon">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                                    <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
-                                                    <line x1="16" y1="8" x2="2" y2="22"></line>
-                                                    <line x1="17.5" y1="15" x2="9" y2="15"></line>
-                                                </svg>
-                                            </div>
-                                            <div className="node-title">{node.name}</div>
-                                            <button
-                                                className="node-remove"
-                                                onMouseDown={(e) => {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                }}
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    console.log('Remove button clicked for node:', node.id);
-                                                    removeNodeFromGraph(node.id);
-                                                }}
-                                                title="Remove Node"
-                                            >
-                                                ×
-                                            </button>
+                                <div
+                                    key={node.id}
+                                    className={`graph-node ${dragState.isDragging && dragState.nodeId === node.id ? 'dragging' : ''}`}
+                                    style={{
+                                        left: node.position.x,
+                                        top: node.position.y,
+                                        cursor: 'grab'
+                                    }}
+                                    onMouseDown={(e) => handleMouseDown(e, node.id)}
+                                >
+                                    <div className="node-header">
+                                        <div className="node-icon">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                                <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
+                                                <line x1="16" y1="8" x2="2" y2="22"></line>
+                                                <line x1="17.5" y1="15" x2="9" y2="15"></line>
+                                            </svg>
                                         </div>
+                                        <div className="node-title">{node.name}</div>
+                                        <button
+                                            className="node-remove"
+                                            onMouseDown={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                            }}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                console.log('Remove button clicked for node:', node.id);
+                                                removeNodeFromGraph(node.id);
+                                            }}
+                                            title="Remove Node"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
 
-                                        <div className="node-content">
-                                            {node.plugin && (
-                                                <div className="node-plugin-info">
-                                                    <div className="plugin-version">v{node.plugin.version}</div>
-                                                    <div className="plugin-author">{node.plugin.author}</div>
-                                                    {node.plugin.description && (
-                                                        <div className="plugin-description">
-                                                            {node.plugin.description}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
+                                    <div className="node-content">
+                                        {node.plugin && (
+                                            <div className="node-plugin-info">
+                                                <div className="plugin-version">v{node.plugin.version}</div>
+                                                <div className="plugin-author">{node.plugin.author}</div>
+                                                {node.plugin.description && (
+                                                    <div className="plugin-description">
+                                                        {node.plugin.description}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="node-ports">
+                                        <div className="input-ports">
+                                            <div className="port input-port" title="Input"></div>
                                         </div>
-
-                                        <div className="node-ports">
-                                            <div className="input-ports">
-                                                <div className="port input-port" title="Input"></div>
-                                            </div>
-                                            <div className="output-ports">
-                                                <div className="port output-port" title="Output"></div>
-                                            </div>
+                                        <div className="output-ports">
+                                            <div className="port output-port" title="Output"></div>
                                         </div>
                                     </div>
-                                ))}
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
