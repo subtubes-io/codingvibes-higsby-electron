@@ -1,21 +1,22 @@
 /* GraphView.css - Following Higsby Design System */
 
 .graph-view {
-  height: 100vh;
+  height: calc(100vh - 60px); /* Full height minus top navigation */
+  width: 100%;
   display: flex;
   position: relative;
   background: #fafafa;
+  overflow: hidden;
 }
 
 /* Main Graph Canvas */
 .graph-canvas {
   flex: 1;
-  margin-top: 60px; /* Below top navigation */
   margin-right: 280px; /* Space for plugins sidebar */
   transition: margin-right 0.3s ease;
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 60px);
+  height: 100%;
   position: relative;
 }
 

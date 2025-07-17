@@ -206,11 +206,17 @@ const MainContent: React.FC<MainContentProps> = ({
     };
 
     return (
-        <main className={`mt-15 p-5 md:p-8 min-h-screen bg-gray-50 transition-all duration-300 ${isSidebarCollapsed ? 'ml-0 md:ml-18' : 'ml-0 md:ml-70'
+        <main className={`mt-15 min-h-screen transition-all duration-300 ${isSidebarCollapsed ? 'ml-0 md:ml-18' : 'ml-0 md:ml-70'} ${activeSection === 'graph' ? 'p-0 bg-transparent' : 'p-5 md:p-8 bg-gray-50'
             }`}>
-            <div className="max-w-6xl mx-auto">
-                {renderContent()}
-            </div>
+            {activeSection === 'graph' ? (
+                // GraphView uses full available space without constraints
+                renderContent()
+            ) : (
+                // Other content uses constrained layout
+                <div className="max-w-6xl mx-auto">
+                    {renderContent()}
+                </div>
+            )}
         </main>
     );
 };
