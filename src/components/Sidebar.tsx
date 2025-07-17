@@ -1,5 +1,4 @@
 import React from 'react';
-import './Sidebar.css';
 
 interface MenuItem {
     id: string;
@@ -95,34 +94,48 @@ const menuItems: MenuItem[] = [
 
 const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, activeItem, onItemClick }) => {
     return (
-        <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
-            <div className="sidebar-content">
-                <div className="sidebar-header">
+        <aside className={`fixed top-15 left-0 bottom-0 bg-gray-900 border-r border-gray-700 py-5 overflow-y-auto transition-all duration-300 z-40 ${isCollapsed ? 'w-18' : 'w-70'
+            } md:block ${isCollapsed ? '' : 'md:w-70'}`}>
+            <div>
+                <div className="mb-8">
                     {!isCollapsed && (
-                        <div className="logo-section">
-                            <div className="logo">
+                        <div className="flex items-center px-5 mb-6">
+                            <div className="text-gray-400 mr-3">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                     <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
                                     <polyline points="2 17 12 22 22 17"></polyline>
                                     <polyline points="2 12 12 17 22 12"></polyline>
                                 </svg>
                             </div>
-                            <span className="logo-text">CDV</span>
+                            <span className="text-gray-400 font-semibold tracking-wider">CDV</span>
                         </div>
                     )}
                 </div>
 
-                <nav className="sidebar-nav">
-                    <ul className="nav-list">
+                <nav>
+                    <ul className="list-none p-0 m-0">
                         {menuItems.map((item) => (
-                            <li key={item.id} className="nav-item">
+                            <li key={item.id}>
                                 <button
-                                    className={`nav-link ${activeItem === item.id ? 'active' : ''}`}
+                                    className={`w-full flex items-center px-5 py-3 text-gray-400 transition-all duration-200 cursor-pointer gap-3 text-sm relative group ${isCollapsed ? 'justify-center px-3' : ''
+                                        } ${activeItem === item.id
+                                            ? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white'
+                                            : 'hover:bg-gray-800 hover:text-white'
+                                        }`}
                                     onClick={() => onItemClick(item.id)}
                                     title={isCollapsed ? item.label : ''}
                                 >
-                                    <span className="nav-icon">{item.icon}</span>
-                                    {!isCollapsed && <span className="nav-label">{item.label}</span>}
+                                    <span className="text-lg min-w-5 text-center">
+                                        {item.icon}
+                                    </span>
+                                    {!isCollapsed && <span className="flex-1 text-left">{item.label}</span>}
+
+                                    {/* Tooltip for collapsed state */}
+                                    {isCollapsed && (
+                                        <div className="absolute left-15 top-1/2 transform -translate-y-1/2 bg-gray-700 text-white px-3 py-2 rounded-md text-sm whitespace-nowrap z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                                            {item.label}
+                                        </div>
+                                    )}
                                 </button>
                             </li>
                         ))}
@@ -130,19 +143,27 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, activeItem, onItemClick 
                 </nav>
             </div>
 
-            <div className="sidebar-footer">
+            <div className="mt-auto px-0">
                 <button
-                    className="nav-link"
+                    className={`w-full flex items-center px-5 py-3 text-gray-400 transition-all duration-200 cursor-pointer gap-3 text-sm relative group hover:bg-gray-800 hover:text-white ${isCollapsed ? 'justify-center px-3' : ''
+                        }`}
                     title={isCollapsed ? 'Help & Support' : ''}
                 >
-                    <span className="nav-icon">
+                    <span className="text-lg min-w-5 text-center">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <circle cx="12" cy="12" r="10"></circle>
                             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
                             <path d="M12 17h.01"></path>
                         </svg>
                     </span>
-                    {!isCollapsed && <span className="nav-label">Help & Support</span>}
+                    {!isCollapsed && <span className="flex-1 text-left">Help & Support</span>}
+
+                    {/* Tooltip for collapsed state */}
+                    {isCollapsed && (
+                        <div className="absolute left-15 top-1/2 transform -translate-y-1/2 bg-gray-700 text-white px-3 py-2 rounded-md text-sm whitespace-nowrap z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                            Help & Support
+                        </div>
+                    )}
                 </button>
             </div>
         </aside>

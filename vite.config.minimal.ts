@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vitejs.dev/config/
+// Minimal config for testing React app only
 export default defineConfig({
     plugins: [
         react(),
@@ -11,9 +11,5 @@ export default defineConfig({
     },
     server: {
         port: 5174
-    },
-    build: {
-        outDir: 'dist',
-        emptyOutDir: true
     }
 })

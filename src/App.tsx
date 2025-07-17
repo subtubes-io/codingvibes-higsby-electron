@@ -2,7 +2,6 @@ import { useState } from 'react'
 import TopNavigation from './components/TopNavigation'
 import Sidebar from './components/Sidebar'
 import MainContent from './components/MainContent'
-import './App.css'
 
 function App() {
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
@@ -17,11 +16,12 @@ function App() {
     }
 
     return (
-        <div className="app">
+        <div className="w-screen h-screen m-0 p-0 bg-gray-50 overflow-hidden">
             <TopNavigation
                 onToggleSidebar={toggleSidebar}
                 title="CDV Electron"
             />
+
             <Sidebar
                 isCollapsed={isSidebarCollapsed}
                 activeItem={activeMenuItem}
