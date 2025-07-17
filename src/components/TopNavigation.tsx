@@ -7,7 +7,7 @@ interface TopNavigationProps {
 
 const TopNavigation: React.FC<TopNavigationProps> = ({
     onToggleSidebar,
-    title = "CDV Electron"
+    title = "Higsby"
 }) => {
     return (
         <nav className="fixed top-0 left-0 right-0 h-15 bg-gradient-to-br from-primary-500 to-primary-600 border-b border-white/10 flex items-center justify-between px-5 z-50 backdrop-blur-sm webkit-app-region-drag">

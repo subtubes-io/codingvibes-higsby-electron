@@ -1,4 +1,4 @@
-# CDV Electron
+# Higsby
 
 A modern Electron application built with Vite, React, and TypeScript.
 

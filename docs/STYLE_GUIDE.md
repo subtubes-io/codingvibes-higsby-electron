@@ -1,6 +1,6 @@
-# CDV Electron Design Style Guide
+# Higsby Design Style Guide
 
-> A comprehensive guide to the design system and styling conventions used in the CDV Electron application.
+> A comprehensive guide to the design system and styling conventions used in the Higsby application.
 
 ## 🎨 Overview
 

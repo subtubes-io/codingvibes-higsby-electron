@@ -58,7 +58,7 @@ const MainContent: React.FC<MainContentProps> = ({
                         </div>
                         <div className="flex flex-col gap-4 mt-5">
                             <div className="bg-gray-100 border border-gray-300 rounded-lg p-5 relative">
-                                <h4 className="m-0 mb-2 text-gray-900 text-xl">CDV Electron App</h4>
+                                <h4 className="m-0 mb-2 text-gray-900 text-xl">Higsby App</h4>
                                 <p className="m-0 mb-3 text-gray-600 leading-relaxed">Desktop application built with Electron, React, and TypeScript</p>
                                 <div className="inline-block px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wide bg-green-200 text-green-800">Active</div>
                             </div>

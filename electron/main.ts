@@ -40,7 +40,7 @@ const indexHtml = path.join(process.env.DIST, 'index.html')
 
 async function createWindow() {
     win = new BrowserWindow({
-        title: 'CDV Electron',
+        title: 'Higsby',
         icon: process.env.VITE_PUBLIC ? path.join(process.env.VITE_PUBLIC, 'favicon.ico') : undefined,
         webPreferences: {
             preload,

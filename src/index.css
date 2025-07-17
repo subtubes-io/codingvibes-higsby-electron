@@ -40,4 +40,8 @@
   .webkit-app-region-no-drag {
     -webkit-app-region: no-drag;
   }
+  
+  .bg-primary-gradient {
+    background: linear-gradient(135deg, #292929 0%, #a90d97 100%);
+  }
 }

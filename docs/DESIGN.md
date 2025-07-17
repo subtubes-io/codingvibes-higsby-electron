@@ -1,4 +1,4 @@
-# CDV Electron Design Implementation Guide
+# Higsby Design Implementation Guide
 
 > Detailed documentation of the current vanilla CSS implementation for migration to Tailwind CSS.
 
@@ -179,7 +179,7 @@ text-xs      /* 0.75rem / 12px */
     <button className="webkit-app-region-no-drag bg-transparent border-none text-white text-xl cursor-pointer p-2 rounded-md transition-colors duration-200 hover:bg-white/10">
       ☰
     </button>
-    <h1 className="text-white text-xl font-semibold m-0">CDV Electron</h1>
+    <h1 className="text-white text-xl font-semibold m-0">Higsby</h1>
   </div>
   
   <div className="flex items-center gap-3">

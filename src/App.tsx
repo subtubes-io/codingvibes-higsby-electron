@@ -16,10 +16,10 @@ function App() {
     }
 
     return (
-        <div className="w-screen h-screen m-0 p-0 bg-gray-50 overflow-hidden">
+        <div className="w-screen h-screen m-0 p-0 bg-primary-gradient overflow-hidden">
             <TopNavigation
                 onToggleSidebar={toggleSidebar}
-                title="CDV Electron"
+                title="Higsby"
             />
 
             <Sidebar

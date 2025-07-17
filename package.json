@@ -41,7 +41,7 @@
     },
     "build": {
         "appId": "com.codingvibes.cdv-electron",
-        "productName": "CDV Electron",
+        "productName": "Higsby",
         "directories": {
             "output": "release/${version}"
         },
