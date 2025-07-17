@@ -1,0 +1,13 @@
+{
+  "name": "Hello World TypeScript Extension",
+  "version": "1.0.0",
+  "description": "A simple hello world extension demonstrating TypeScript React components",
+  "author": "CodingVibes",
+  "main": "index.js",
+  "permissions": [],
+  "keywords": ["hello-world", "typescript", "react", "demo"],
+  "category": "utility",
+  "language": "typescript",
+  "framework": "react",
+  "minAppVersion": "1.0.0"
+}

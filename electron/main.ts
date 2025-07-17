@@ -43,6 +43,7 @@ function startServer(): Promise<void> {
         const serverPath = path.join(__dirname, '../example-server/dist/server.js')
 
         console.log('🚀 Starting Node.js server...')
+        console.log('📁 Extensions will be stored in app data directory')
 
         serverProcess = spawn('node', [serverPath], {
             env: { ...process.env, PORT: SERVER_PORT.toString() },
@@ -242,5 +243,18 @@ ipcMain.handle('restart-server', async () => {
         return { success: true }
     } catch (error) {
         return { success: false, error: error instanceof Error ? error.message : String(error) }
+    }
+})
+
+ipcMain.handle('get-extensions-path', async () => {
+    try {
+        const response = await fetch(`http://localhost:${SERVER_PORT}/api/extensions/path`)
+        const data = await response.json()
+        return data
+    } catch (error) {
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : String(error)
+        }
     }
 })

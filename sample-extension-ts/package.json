@@ -1,0 +1,35 @@
+{
+    "name": "hello-world-extension-ts",
+    "version": "1.0.0",
+    "description": "A simple hello world extension demonstrating TypeScript React components",
+    "main": "dist/index.js",
+    "scripts": {
+        "build": "webpack --mode production",
+        "dev": "webpack --mode development --watch",
+        "bundle": "npm run build && npm run zip",
+        "zip": "node scripts/bundle.js",
+        "clean": "rimraf dist && rimraf *.zip"
+    },
+    "keywords": [
+        "extension",
+        "react",
+        "hello-world",
+        "typescript"
+    ],
+    "author": "CodingVibes",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/react": "^18.2.43",
+        "@types/react-dom": "^18.2.17",
+        "typescript": "^5.0.0",
+        "webpack": "^5.88.0",
+        "webpack-cli": "^5.1.0",
+        "ts-loader": "^9.4.0",
+        "archiver": "^6.0.1",
+        "rimraf": "^5.0.0"
+    },
+    "peerDependencies": {
+        "react": "^18.0.0",
+        "react-dom": "^18.0.0"
+    }
+}
