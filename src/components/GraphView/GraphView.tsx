@@ -48,16 +48,9 @@ const GraphView: React.FC = () => {
     }, []);
 
     const handleExportGraph = useCallback(() => {
-        const graphData = {
-            version: "1.0.0",
-            metadata: {
-                name: "Graph Export",
-                description: "Visual plugin composition and workflow",
-                exportedAt: new Date().toISOString(),
-                zoom: zoom,
-                panOffset: panOffset
-            },
-            nodes: graphNodes.map(node => ({
+        // Convert nodes array to object keyed by node IDs
+        const nodesObject = graphNodes.reduce((acc, node) => {
+            acc[node.id] = {
                 id: node.id,
                 name: node.name,
                 type: node.type,
@@ -70,7 +63,20 @@ const GraphView: React.FC = () => {
                     description: node.plugin.description,
                     main: node.plugin.main
                 } : null
-            }))
+            };
+            return acc;
+        }, {} as Record<string, any>);
+
+        const graphData = {
+            version: "1.0.0",
+            metadata: {
+                name: "Graph Export",
+                description: "Visual plugin composition and workflow",
+                exportedAt: new Date().toISOString(),
+                zoom: zoom,
+                panOffset: panOffset
+            },
+            nodes: nodesObject
         };
 
         const jsonString = JSON.stringify(graphData, null, 2);
@@ -102,8 +108,10 @@ const GraphView: React.FC = () => {
                     const jsonData = JSON.parse(event.target?.result as string);
 
                     // Validate the imported data structure
-                    if (jsonData.nodes && Array.isArray(jsonData.nodes)) {
-                        setGraphNodes(jsonData.nodes);
+                    if (jsonData.nodes && typeof jsonData.nodes === 'object') {
+                        // Convert nodes object back to array format for state
+                        const nodesArray = Object.values(jsonData.nodes);
+                        setGraphNodes(nodesArray);
 
                         // Restore view state if available
                         if (jsonData.metadata) {
