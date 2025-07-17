@@ -1,3 +1,19 @@
+.app {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  background-color: #fafafa;
+  overflow: hidden;
+}
+
+/* Reset any default margins/padding */
+* {
+  box-sizing: border-box;
+}
+
+/* Old styles are kept for reference but commented out */
+/*
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -43,3 +59,4 @@
 .read-the-docs {
   color: #888;
 }
+*/
