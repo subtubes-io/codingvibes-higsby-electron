@@ -1,0 +1,64 @@
+{
+    "name": "cdv-electron",
+    "private": true,
+    "version": "0.0.0",
+    "main": "dist-electron/main.js",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build && electron-builder",
+        "build:renderer": "tsc && vite build",
+        "build:electron": "tsc -p tsconfig.electron.json",
+        "preview": "vite preview",
+        "electron": "wait-on tcp:5174 && cross-env IS_DEV=true electron .",
+        "electron:pack": "electron-builder",
+        "electron:dev": "concurrently \"npm run dev\" \"npm run electron\"",
+        "electron:preview": "npm run build:renderer && npm run build:electron && electron .",
+        "dist": "npm run build:renderer && npm run build:electron && electron-builder --publish=never"
+    },
+    "dependencies": {
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20.0.0",
+        "@types/react": "^18.2.43",
+        "@types/react-dom": "^18.2.17",
+        "@vitejs/plugin-react": "^4.2.1",
+        "electron": "^28.0.0",
+        "electron-builder": "^24.6.4",
+        "typescript": "^5.2.2",
+        "vite": "^5.0.8",
+        "vite-plugin-electron": "^0.15.5",
+        "vite-plugin-electron-renderer": "^0.14.5",
+        "concurrently": "^8.2.2",
+        "cross-env": "^7.0.3",
+        "wait-on": "^7.2.0"
+    },
+    "build": {
+        "appId": "com.codingvibes.cdv-electron",
+        "productName": "CDV Electron",
+        "directories": {
+            "output": "release/${version}"
+        },
+        "files": [
+            "dist",
+            "dist-electron"
+        ],
+        "mac": {
+            "artifactName": "${productName}_${version}.${ext}",
+            "target": [
+                "dmg"
+            ]
+        },
+        "win": {
+            "target": [
+                "nsis"
+            ]
+        },
+        "linux": {
+            "target": [
+                "AppImage"
+            ]
+        }
+    }
+}

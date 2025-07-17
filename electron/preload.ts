@@ -1,0 +1,18 @@
+// Preload script for Electron
+// This script runs in the renderer process before the web page loads
+
+import { contextBridge, ipcRenderer } from 'electron'
+
+// Expose APIs to renderer process
+contextBridge.exposeInMainWorld('electronAPI', {
+    // Example API methods
+    openWindow: (url: string) => ipcRenderer.invoke('open-win', url),
+
+    // Listen for main process messages
+    onMainMessage: (callback: (message: string) => void) => {
+        ipcRenderer.on('main-process-message', (_event, message) => callback(message))
+    }
+})
+
+// Simple preload functionality
+console.log('Preload script loaded successfully')
