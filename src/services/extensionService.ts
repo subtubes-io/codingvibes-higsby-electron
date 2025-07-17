@@ -3,6 +3,7 @@
  * Manages extensions through HTTP API calls to the backend server
  */
 
+import React from 'react';
 import { ExtensionUploadResult } from '../types/extension';
 
 export interface ExtensionManifest {
@@ -149,24 +150,40 @@ export class ExtensionService {
             // Dynamically import the extension component
             const response = await fetch(`${this.baseUrl}/api/extensions/${extensionId}`);
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                throw new Error(`HTTP ${response.status}: ${response.status}`);
             }
 
             const extensionCode = await response.text();
 
-            // Create a module from the extension code
-            const moduleUrl = URL.createObjectURL(new Blob([extensionCode], { type: 'application/javascript' }));
-            const module = await import(moduleUrl);
+            // Make sure React is available globally for UMD modules
+            const ReactModule = React;
+            const ReactDOMModule = await import('react-dom');
 
-            // Clean up the blob URL
-            URL.revokeObjectURL(moduleUrl);
+            if (typeof window !== 'undefined') {
+                (window as any).react = ReactModule;
+                (window as any).React = ReactModule;
+                (window as any)['react-dom'] = ReactDOMModule;
+                (window as any).ReactDOM = ReactDOMModule;
+            }
 
-            const Component = module.default || module.Component;
+            // Execute the UMD extension code directly in the global context
+            // This ensures that the UMD wrapper can access the global dependencies
+            const script = document.createElement('script');
+            script.textContent = extensionCode;
+            document.head.appendChild(script);
+
+            // The UMD code should have set a global variable, let's try to get it
+            const globalName = 'HelloWorldExtension'; // This should match the library name in webpack config
+            const Component = (window as any)[globalName];
+
+            // Clean up the script
+            document.head.removeChild(script);
+
             if (Component) {
                 this.loadedComponents.set(extensionId, Component);
                 return Component;
             } else {
-                throw new Error('Extension does not export a default component');
+                throw new Error('Extension UMD module did not export the expected global variable');
             }
         } catch (error) {
             console.error(`Failed to load extension component ${extensionId}:`, error);

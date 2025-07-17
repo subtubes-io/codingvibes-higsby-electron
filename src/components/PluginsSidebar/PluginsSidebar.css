@@ -370,3 +370,184 @@
 .plugins-sidebar::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+/* Plugin Preview Panel */
+.plugin-preview {
+  border-top: 1px solid #333;
+  background: #222;
+  transition: max-height 0.3s ease;
+  max-height: 500px;
+  overflow: hidden;
+}
+
+.plugin-preview.collapsed {
+  max-height: 45px;
+}
+
+.preview-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #333;
+}
+
+.preview-title {
+  color: white;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.preview-icon {
+  font-size: 1rem;
+}
+
+.preview-toggle {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.preview-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.preview-content {
+  padding: 20px;
+  background: #222;
+  color: #e5e7eb;
+}
+
+.preview-info {
+  margin-bottom: 20px;
+}
+
+.preview-plugin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.preview-plugin-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.preview-plugin-version {
+  background: #667eea;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.preview-plugin-author,
+.preview-plugin-description,
+.preview-plugin-status {
+  margin-bottom: 12px;
+}
+
+.preview-label {
+  color: #9ca3af;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.preview-plugin-description p {
+  margin: 4px 0 0 0;
+  color: #d1d5db;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.preview-status-badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.preview-divider {
+  height: 1px;
+  background: #374151;
+  margin: 20px 0;
+}
+
+.preview-live {
+  margin-bottom: 20px;
+}
+
+.preview-live-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.preview-sandbox {
+  background: #1a1a1a;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  padding: 16px;
+  min-height: 120px;
+  overflow: hidden;
+}
+
+.preview-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.preview-add-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.preview-add-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.preview-close-button {
+  background: #374151;
+  color: #9ca3af;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.preview-close-button:hover {
+  background: #4b5563;
+  color: white;
+}

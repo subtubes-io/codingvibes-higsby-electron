@@ -1,13 +1,16 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { ExtensionManifest } from '../../types/extension';
 import PluginsSidebar from '../PluginsSidebar';
-import { ExtensionLoader } from '../ExtensionLoader';
 import './GraphView.css';
 
 const GraphView: React.FC = () => {
     const [isPluginsSidebarCollapsed, setIsPluginsSidebarCollapsed] = useState(false);
-    const [selectedPlugin, setSelectedPlugin] = useState<ExtensionManifest | null>(null);
     const [graphNodes, setGraphNodes] = useState<any[]>([]);
+
+    // Debug: Log graph nodes changes
+    useEffect(() => {
+        console.log('GraphNodes updated:', graphNodes);
+    }, [graphNodes]);
     const [dragState, setDragState] = useState<{
         isDragging: boolean;
         nodeId: string | null;
@@ -29,44 +32,59 @@ const GraphView: React.FC = () => {
         setIsPluginsSidebarCollapsed(prev => !prev);
     }, []);
 
-    const handlePluginSelect = useCallback((plugin: ExtensionManifest) => {
-        setSelectedPlugin(plugin);
-        // Add plugin to graph as a node
+    const handleAddToGraph = useCallback((plugin: ExtensionManifest) => {
+        console.log('handleAddToGraph called with plugin:', plugin);
         addPluginToGraph(plugin);
     }, []);
 
-    const addPluginToGraph = (plugin: ExtensionManifest) => {
-        const existingNodeCount = graphNodes.length;
-        const gridSize = Math.ceil(Math.sqrt(existingNodeCount + 1));
-        const spacing = 250; // Space between nodes
-        const offsetX = 50; // Initial offset from left
-        const offsetY = 50; // Initial offset from top
-
-        const row = Math.floor(existingNodeCount / gridSize);
-        const col = existingNodeCount % gridSize;
-
-        const newNode = {
-            id: plugin.name.toLowerCase().replace(/\s+/g, '-'),
-            name: plugin.name,
-            type: 'plugin',
-            plugin: plugin,
-            position: {
-                x: offsetX + (col * spacing),
-                y: offsetY + (row * spacing)
-            }
-        };
+    const addPluginToGraph = useCallback((plugin: ExtensionManifest) => {
+        console.log('addPluginToGraph called with plugin:', plugin);
 
         setGraphNodes(prev => {
+            console.log('Current graphNodes:', prev);
+
+            const existingNodeCount = prev.length;
+            const gridSize = Math.ceil(Math.sqrt(existingNodeCount + 1));
+            const spacing = 250; // Space between nodes
+            const offsetX = 50; // Initial offset from left
+            const offsetY = 50; // Initial offset from top
+
+            const row = Math.floor(existingNodeCount / gridSize);
+            const col = existingNodeCount % gridSize;
+
+            const newNode = {
+                id: plugin.name.toLowerCase().replace(/\s+/g, '-'),
+                name: plugin.name,
+                type: 'plugin',
+                plugin: plugin,
+                position: {
+                    x: offsetX + (col * spacing),
+                    y: offsetY + (row * spacing)
+                }
+            };
+
+            console.log('Creating new node:', newNode);
+
             // Check if node already exists
             const exists = prev.some(node => node.id === newNode.id);
-            if (exists) return prev;
+            if (exists) {
+                console.log('Node already exists, not adding');
+                return prev;
+            }
+            console.log('Adding new node to graph');
             return [...prev, newNode];
         });
-    };
+    }, []);
 
-    const removeNodeFromGraph = (nodeId: string) => {
-        setGraphNodes(prev => prev.filter(node => node.id !== nodeId));
-    };
+    const removeNodeFromGraph = useCallback((nodeId: string) => {
+        console.log('removeNodeFromGraph called with nodeId:', nodeId);
+        setGraphNodes(prev => {
+            console.log('Current graphNodes before removal:', prev);
+            const filtered = prev.filter(node => node.id !== nodeId);
+            console.log('Filtered nodes after removal:', filtered);
+            return filtered;
+        });
+    }, []);
 
     // Update node position using requestAnimationFrame for smooth dragging
     const updateNodePosition = useCallback(() => {
@@ -257,8 +275,14 @@ const GraphView: React.FC = () => {
                                         <div className="node-title">{node.name}</div>
                                         <button
                                             className="node-remove"
-                                            onClick={(e) => {
+                                            onMouseDown={(e) => {
+                                                e.preventDefault();
                                                 e.stopPropagation();
+                                            }}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                console.log('Remove button clicked for node:', node.id);
                                                 removeNodeFromGraph(node.id);
                                             }}
                                             title="Remove Node"
@@ -295,31 +319,13 @@ const GraphView: React.FC = () => {
                     )}
                 </div>
 
-                {/* Selected Plugin Preview */}
-                {selectedPlugin && (
-                    <div className="selected-plugin-preview">
-                        <div className="preview-header">
-                            <h4>Plugin Preview</h4>
-                            <button
-                                className="close-preview"
-                                onClick={() => setSelectedPlugin(null)}
-                            >
-                                ×
-                            </button>
-                        </div>
-                        <div className="preview-content">
-                            <ExtensionLoader selectedExtensionId={selectedPlugin.name.toLowerCase().replace(/\s+/g, '-')} />
-                        </div>
-                    </div>
-                )}
             </div>
 
             {/* Plugins Sidebar */}
             <PluginsSidebar
                 isCollapsed={isPluginsSidebarCollapsed}
                 onToggle={handleTogglePluginsSidebar}
-                onPluginSelect={handlePluginSelect}
-                selectedPlugin={selectedPlugin}
+                onAddToGraph={handleAddToGraph}
             />
         </div>
     );

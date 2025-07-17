@@ -6,15 +6,13 @@ import './PluginsSidebar.css';
 interface PluginsSidebarProps {
     isCollapsed: boolean;
     onToggle: () => void;
-    onPluginSelect: (plugin: ExtensionManifest) => void;
-    selectedPlugin: ExtensionManifest | null;
+    onAddToGraph: (plugin: ExtensionManifest) => void;
 }
 
 const PluginsSidebar: React.FC<PluginsSidebarProps> = ({
     isCollapsed,
     onToggle,
-    onPluginSelect,
-    selectedPlugin
+    onAddToGraph
 }) => {
     const [plugins, setPlugins] = useState<ExtensionManifest[]>([]);
     const [loading, setLoading] = useState(true);
@@ -131,14 +129,13 @@ const PluginsSidebar: React.FC<PluginsSidebarProps> = ({
                         {plugins.map((plugin) => {
                             const pluginId = getPluginId(plugin);
                             const pluginStatus = getPluginStatus(plugin);
-                            const selectedId = selectedPlugin ? getPluginId(selectedPlugin) : null;
 
                             return (
                                 <div
                                     key={pluginId}
-                                    className={`plugin-item ${selectedId === pluginId ? 'active' : ''}`}
-                                    onClick={() => onPluginSelect(plugin)}
-                                    title={isCollapsed ? `${plugin.name} - ${pluginStatus}` : ''}
+                                    className="plugin-item"
+                                    onClick={() => onAddToGraph(plugin)}
+                                    title={isCollapsed ? `${plugin.name} - ${pluginStatus}` : `Click to add ${plugin.name} to graph`}
                                 >
                                     <div className="plugin-status-indicator">
                                         <span
@@ -197,6 +194,7 @@ const PluginsSidebar: React.FC<PluginsSidebarProps> = ({
                     </div>
                 )}
             </div>
+
         </div>
     );
 };

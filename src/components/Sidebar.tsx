@@ -28,70 +28,6 @@ const menuItems: MenuItem[] = [
         ),
     },
     {
-        id: 'demo',
-        label: 'Demo',
-        icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                <polyline points="2 17 12 22 22 17"></polyline>
-                <polyline points="2 12 12 17 22 12"></polyline>
-            </svg>
-        ),
-    },
-    {
-        id: 'projects',
-        label: 'Projects',
-        icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-            </svg>
-        ),
-    },
-    {
-        id: 'tasks',
-        label: 'Tasks',
-        icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M9 11l3 3L22 4"></path>
-                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-            </svg>
-        ),
-    },
-    {
-        id: 'analytics',
-        label: 'Analytics',
-        icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M3 3v18h18"></path>
-                <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path>
-            </svg>
-        ),
-    },
-    {
-        id: 'team',
-        label: 'Team',
-        icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
-        ),
-    },
-    {
-        id: 'extensions',
-        label: 'Extensions',
-        icon: (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
-                <line x1="16" y1="8" x2="2" y2="22"></line>
-                <line x1="17.5" y1="15" x2="9" y2="15"></line>
-            </svg>
-        ),
-    },
-    {
         id: 'graph',
         label: 'Graph View',
         icon: (
@@ -105,15 +41,79 @@ const menuItems: MenuItem[] = [
         ),
     },
     {
-        id: 'settings',
-        label: 'Settings',
+        id: 'extensions',
+        label: 'Extensions',
         icon: (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 -1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
+                <line x1="16" y1="8" x2="2" y2="22"></line>
+                <line x1="17.5" y1="15" x2="9" y2="15"></line>
             </svg>
         ),
-    },
+    }
+    // {
+    //     id: 'demo',
+    //     label: 'Demo',
+    //     icon: (
+    //         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    //             <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+    //             <polyline points="2 17 12 22 22 17"></polyline>
+    //             <polyline points="2 12 12 17 22 12"></polyline>
+    //         </svg>
+    //     ),
+    // },
+    // {
+    //     id: 'projects',
+    //     label: 'Projects',
+    //     icon: (
+    //         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    //             <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+    //             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+    //         </svg>
+    //     ),
+    // },
+    // {
+    //     id: 'tasks',
+    //     label: 'Tasks',
+    //     icon: (
+    //         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    //             <path d="M9 11l3 3L22 4"></path>
+    //             <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+    //         </svg>
+    //     ),
+    // },
+    // {
+    //     id: 'analytics',
+    //     label: 'Analytics',
+    //     icon: (
+    //         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    //             <path d="M3 3v18h18"></path>
+    //             <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path>
+    //         </svg>
+    //     ),
+    // },
+    // {
+    //     id: 'team',
+    //     label: 'Team',
+    //     icon: (
+    //         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    //             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+    //             <circle cx="9" cy="7" r="4"></circle>
+    //             <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+    //             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+    //         </svg>
+    //     ),
+    // },
+    // {
+    //     id: 'settings',
+    //     label: 'Settings',
+    //     icon: (
+    //         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    //             <circle cx="12" cy="12" r="3"></circle>
+    //             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 -1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    //         </svg>
+    //     ),
+    // },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, activeItem, onItemClick }) => {
