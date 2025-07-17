@@ -155,8 +155,10 @@
   max-width: 300px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
-  cursor: move;
+  cursor: grab;
   z-index: 10;
+  user-select: none;
+  will-change: transform; /* Optimize for animations */
 }
 
 .graph-node:hover {
@@ -175,6 +177,7 @@
   border-color: #667eea;
   z-index: 1000;
   cursor: grabbing !important;
+  transition: none !important; /* Disable transitions during drag for smooth movement */
 }
 
 .graph-node.dragging * {

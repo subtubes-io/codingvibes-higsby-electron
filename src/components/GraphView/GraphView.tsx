@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { ExtensionManifest } from '../../types/extension';
 import PluginsSidebar from '../PluginsSidebar';
 import { ExtensionLoader } from '../ExtensionLoader';
@@ -20,6 +20,11 @@ const GraphView: React.FC = () => {
         offset: { x: 0, y: 0 }
     });
 
+    // Refs for smooth animation
+    const animationFrameRef = useRef<number | null>(null);
+    const mousePositionRef = useRef({ x: 0, y: 0 });
+    const graphWorkspaceRef = useRef<HTMLDivElement>(null);
+
     const handleTogglePluginsSidebar = useCallback(() => {
         setIsPluginsSidebarCollapsed(prev => !prev);
     }, []);
@@ -36,10 +41,10 @@ const GraphView: React.FC = () => {
         const spacing = 250; // Space between nodes
         const offsetX = 50; // Initial offset from left
         const offsetY = 50; // Initial offset from top
-        
+
         const row = Math.floor(existingNodeCount / gridSize);
         const col = existingNodeCount % gridSize;
-        
+
         const newNode = {
             id: plugin.name.toLowerCase().replace(/\s+/g, '-'),
             name: plugin.name,
@@ -63,46 +68,85 @@ const GraphView: React.FC = () => {
         setGraphNodes(prev => prev.filter(node => node.id !== nodeId));
     };
 
-    const handleMouseDown = useCallback((e: React.MouseEvent, nodeId: string) => {
-        e.preventDefault();
-        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-        const offsetX = e.clientX - rect.left;
-        const offsetY = e.clientY - rect.top;
+    // Update node position using requestAnimationFrame for smooth dragging
+    const updateNodePosition = useCallback(() => {
+        if (!dragState.isDragging || !dragState.nodeId) {
+            return;
+        }
 
-        setDragState({
-            isDragging: true,
-            nodeId,
-            startPosition: { x: e.clientX, y: e.clientY },
-            offset: { x: offsetX, y: offsetY }
-        });
-    }, []);
-
-    const handleMouseMove = useCallback((e: MouseEvent) => {
-        if (!dragState.isDragging || !dragState.nodeId) return;
-
-        e.preventDefault();
-        
-        const graphWorkspace = document.querySelector('.graph-workspace') as HTMLElement;
+        const graphWorkspace = graphWorkspaceRef.current;
         if (!graphWorkspace) return;
 
         const workspaceRect = graphWorkspace.getBoundingClientRect();
-        const newX = e.clientX - workspaceRect.left - dragState.offset.x;
-        const newY = e.clientY - workspaceRect.top - dragState.offset.y;
+        const newX = mousePositionRef.current.x - dragState.offset.x;
+        const newY = mousePositionRef.current.y - dragState.offset.y;
 
         // Constrain to workspace bounds
-        const constrainedX = Math.max(0, Math.min(newX, workspaceRect.width - 200)); // 200px node width
-        const constrainedY = Math.max(0, Math.min(newY, workspaceRect.height - 150)); // 150px node height
+        const constrainedX = Math.max(0, Math.min(newX, workspaceRect.width - 200));
+        const constrainedY = Math.max(0, Math.min(newY, workspaceRect.height - 150));
 
-        setGraphNodes(prev => 
-            prev.map(node => 
-                node.id === dragState.nodeId 
+        setGraphNodes(prev =>
+            prev.map(node =>
+                node.id === dragState.nodeId
                     ? { ...node, position: { x: constrainedX, y: constrainedY } }
                     : node
             )
         );
-    }, [dragState]);
+
+        // Continue animation if still dragging
+        if (dragState.isDragging && dragState.nodeId) {
+            animationFrameRef.current = requestAnimationFrame(updateNodePosition);
+        }
+    }, [dragState.isDragging, dragState.nodeId, dragState.offset.x, dragState.offset.y]);
+
+    const handleMouseDown = useCallback((e: React.MouseEvent, nodeId: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const graphWorkspace = graphWorkspaceRef.current;
+        if (!graphWorkspace) return;
+
+        const workspaceRect = graphWorkspace.getBoundingClientRect();
+        const mouseX = e.clientX - workspaceRect.left;
+        const mouseY = e.clientY - workspaceRect.top;
+
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        const offsetX = e.clientX - rect.left;
+        const offsetY = e.clientY - rect.top;
+
+        mousePositionRef.current = { x: mouseX, y: mouseY };
+
+        setDragState({
+            isDragging: true,
+            nodeId,
+            startPosition: { x: mouseX, y: mouseY },
+            offset: { x: offsetX, y: offsetY }
+        });
+    }, []);
+
+    // Start animation when dragging begins
+    useEffect(() => {
+        if (dragState.isDragging && dragState.nodeId && !animationFrameRef.current) {
+            animationFrameRef.current = requestAnimationFrame(updateNodePosition);
+        }
+    }, [dragState.isDragging, dragState.nodeId, updateNodePosition]);
+
+    const handleMouseMove = useCallback((e: MouseEvent) => {
+        if (!dragState.isDragging || !graphWorkspaceRef.current) return;
+
+        const workspaceRect = graphWorkspaceRef.current.getBoundingClientRect();
+        mousePositionRef.current = {
+            x: e.clientX - workspaceRect.left,
+            y: e.clientY - workspaceRect.top
+        };
+    }, [dragState.isDragging]);
 
     const handleMouseUp = useCallback(() => {
+        if (animationFrameRef.current) {
+            cancelAnimationFrame(animationFrameRef.current);
+            animationFrameRef.current = null;
+        }
+
         setDragState({
             isDragging: false,
             nodeId: null,
@@ -111,27 +155,36 @@ const GraphView: React.FC = () => {
         });
     }, []);
 
-    // Add global event listeners for mouse move and up
-    React.useEffect(() => {
+    // Set up global mouse event listeners and cleanup
+    useEffect(() => {
         if (dragState.isDragging) {
             document.addEventListener('mousemove', handleMouseMove);
             document.addEventListener('mouseup', handleMouseUp);
             document.body.style.cursor = 'grabbing';
             document.body.style.userSelect = 'none';
-        } else {
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
-            document.body.style.cursor = '';
-            document.body.style.userSelect = '';
-        }
 
-        return () => {
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
-            document.body.style.cursor = '';
-            document.body.style.userSelect = '';
-        };
+            return () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+
+                if (animationFrameRef.current) {
+                    cancelAnimationFrame(animationFrameRef.current);
+                    animationFrameRef.current = null;
+                }
+            };
+        }
     }, [dragState.isDragging, handleMouseMove, handleMouseUp]);
+
+    // Cleanup animation frame on unmount
+    useEffect(() => {
+        return () => {
+            if (animationFrameRef.current) {
+                cancelAnimationFrame(animationFrameRef.current);
+            }
+        };
+    }, []);
 
     return (
         <div className="graph-view">
@@ -146,8 +199,8 @@ const GraphView: React.FC = () => {
                     </div>
 
                     <div className="graph-controls">
-                        <button 
-                            className="graph-control-button" 
+                        <button
+                            className="graph-control-button"
                             title="Clear Graph"
                             onClick={() => setGraphNodes([])}
                         >
@@ -165,7 +218,7 @@ const GraphView: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="graph-workspace">
+                <div className="graph-workspace" ref={graphWorkspaceRef}>
                     {graphNodes.length === 0 ? (
                         <div className="empty-graph">
                             <div className="empty-graph-icon">🔗</div>
