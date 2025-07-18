@@ -4,7 +4,7 @@
     top: 0;
     height: 100%;
     width: 300px;
-    background: var(--sidebar-bg, #1e1e1e);
+    background: #1a1a1a;
     border-right: 1px solid var(--border-color, #333);
     transition: transform 0.3s ease, width 0.3s ease;
     z-index: 10;
@@ -17,9 +17,12 @@
 }
 
 .graphs-sidebar-header {
+    background: linear-gradient(135deg,  #071a4b  0%, #1c1c1c 100%);
     padding: 1rem;
     border-bottom: 1px solid var(--border-color, #333);
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
 }
 
 .graphs-sidebar-toggle {
@@ -29,16 +32,51 @@
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 14px;
-    width: 100%;
-    padding: 0.5rem;
-    border-radius: 4px;
+    justify-content: center;
+    font-size: 1.2rem;
+    padding: 8px;
+    border-radius: 6px;
     transition: background-color 0.2s;
+    min-width: 32px;
 }
 
 .graphs-sidebar-toggle:hover {
-    background: var(--hover-bg, #333);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.graphs-header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+    margin-left: 12px;
+}
+
+.graphs-title {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.refresh-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.refresh-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.refresh-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .graphs-sidebar-content {

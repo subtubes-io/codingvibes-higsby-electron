@@ -95,6 +95,27 @@
   padding: 20px 0;
 }
 
+/* Search Section */
+.search-container {
+  padding: 1rem;
+  border-bottom: 1px solid #333;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem;
+  background: #2a2a2a;
+  border: 1px solid #333;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #007acc;
+}
+
 /* Loading State */
 .plugins-loading {
   display: flex;

@@ -15,18 +15,34 @@ const PluginsSidebar: React.FC<PluginsSidebarProps> = ({
     onAddToGraph
 }) => {
     const [plugins, setPlugins] = useState<ExtensionManifest[]>([]);
+    const [filteredPlugins, setFilteredPlugins] = useState<ExtensionManifest[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         loadPlugins();
     }, []);
+
+    // Filter plugins based on search query
+    useEffect(() => {
+        if (!searchQuery.trim()) {
+            setFilteredPlugins(plugins);
+        } else {
+            const filtered = plugins.filter(plugin =>
+                plugin.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (plugin.description && plugin.description.toLowerCase().includes(searchQuery.toLowerCase()))
+            );
+            setFilteredPlugins(filtered);
+        }
+    }, [plugins, searchQuery]);
 
     const loadPlugins = async () => {
         try {
             setLoading(true);
             const pluginList = await extensionService.getExtensions();
             setPlugins(pluginList);
+            setFilteredPlugins(pluginList);
             setError(null);
         } catch (err) {
             setError('Failed to load plugins');
@@ -84,7 +100,7 @@ const PluginsSidebar: React.FC<PluginsSidebarProps> = ({
                     title={isCollapsed ? 'Expand Plugins Panel' : 'Collapse Plugins Panel'}
                 >
                     <span className="toggle-icon">
-                        {isCollapsed ? '▶' : '◀'}
+                        {isCollapsed ? '◀' : '▶'}
                     </span>
                 </button>
 
@@ -107,6 +123,18 @@ const PluginsSidebar: React.FC<PluginsSidebarProps> = ({
             </div>
 
             <div className="plugins-content">
+                {!isCollapsed && (
+                    <div className="search-container">
+                        <input
+                            type="text"
+                            placeholder="Search plugins..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="search-input"
+                        />
+                    </div>
+                )}
+
                 {loading && !isCollapsed && (
                     <div className="plugins-loading">
                         <div className="loading-spinner"></div>
@@ -123,14 +151,14 @@ const PluginsSidebar: React.FC<PluginsSidebarProps> = ({
 
                 {!loading && !error && (
                     <div className="plugins-list">
-                        {plugins.length === 0 && !isCollapsed && (
+                        {filteredPlugins.length === 0 && !isCollapsed && (
                             <div className="no-plugins">
                                 <span className="no-plugins-icon">📦</span>
-                                <span>No plugins installed</span>
+                                <span>{searchQuery ? 'No plugins found' : 'No plugins installed'}</span>
                             </div>
                         )}
 
-                        {plugins.map((plugin) => {
+                        {filteredPlugins.map((plugin) => {
                             const pluginId = getPluginId(plugin);
                             const pluginStatus = getPluginStatus(plugin);
 
@@ -193,7 +221,10 @@ const PluginsSidebar: React.FC<PluginsSidebarProps> = ({
                 {!isCollapsed && (
                     <div className="plugins-footer">
                         <div className="plugins-count">
-                            {plugins.length} plugin{plugins.length !== 1 ? 's' : ''} installed
+                            {searchQuery
+                                ? `${filteredPlugins.length} of ${plugins.length} plugin${plugins.length !== 1 ? 's' : ''}`
+                                : `${plugins.length} plugin${plugins.length !== 1 ? 's' : ''} installed`
+                            }
                         </div>
                     </div>
                 )}

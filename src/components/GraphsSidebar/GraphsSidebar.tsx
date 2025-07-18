@@ -157,17 +157,28 @@ const GraphsSidebar: React.FC<GraphsSidebarProps> = ({
                     onClick={onToggle}
                     title={isCollapsed ? 'Expand Graphs' : 'Collapse Graphs'}
                 >
-                    <span className="icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <circle cx="18" cy="5" r="3"></circle>
-                            <circle cx="6" cy="12" r="3"></circle>
-                            <circle cx="18" cy="19" r="3"></circle>
-                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-                        </svg>
+                    <span className="toggle-icon">
+                        {isCollapsed ? '▶' : '◀'}
                     </span>
-                    {!isCollapsed && <span>Saved Graphs</span>}
                 </button>
+
+                {!isCollapsed && (
+                    <div className="graphs-header-content">
+                        <h3 className="graphs-title">Saved Graphs</h3>
+                        <button
+                            className="refresh-button"
+                            onClick={loadSavedGraphs}
+                            title="Refresh graphs list"
+                            disabled={loading}
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                <polyline points="23,4 23,10 17,10"></polyline>
+                                <polyline points="1,20 1,14 7,14"></polyline>
+                                <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4L18.36 18.36A9 9 0 0 1 3.51 15"></path>
+                            </svg>
+                        </button>
+                    </div>
+                )}
             </div>
 
             {!isCollapsed && (
@@ -219,20 +230,6 @@ const GraphsSidebar: React.FC<GraphsSidebarProps> = ({
                                 New
                             </button>
                         )}
-                        <button
-                            className="refresh-graphs-btn"
-                            onClick={loadSavedGraphs}
-                            title="Refresh List"
-                            disabled={loading}
-                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                        >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <polyline points="23,4 23,10 17,10"></polyline>
-                                <polyline points="1,20 1,14 7,14"></polyline>
-                                <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
-                            </svg>
-                            {loading ? 'Loading...' : 'Refresh'}
-                        </button>
                     </div>
 
                     <div className="search-container">
