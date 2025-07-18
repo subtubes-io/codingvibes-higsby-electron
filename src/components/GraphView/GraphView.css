@@ -75,6 +75,18 @@
   color: #333;
 }
 
+.graph-control-button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+.graph-control-button.active:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
 .zoom-indicator {
   display: flex;
   align-items: center;
@@ -474,4 +486,58 @@
 
 .preview-content::-webkit-scrollbar-thumb:hover {
   background: #d1d5db;
+}
+
+/* Extension Function Controls */
+.node-functions {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.function-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.call-function-btn,
+.show-capabilities-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.call-function-btn:hover,
+.show-capabilities-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.show-capabilities-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.show-capabilities-btn:hover {
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.no-function {
+  color: #999;
+  font-style: italic;
+  text-align: center;
+  padding: 8px;
+}
+
+.no-function small {
+  font-size: 0.75rem;
 }

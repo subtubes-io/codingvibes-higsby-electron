@@ -10,7 +10,12 @@ declare global {
 const React = window.React || (globalThis as any).React;
 const { useState, useEffect } = React;
 
-const HelloWorldExtension: React.FC = () => {
+// Define the interface for the component with static function
+interface HelloWorldExtensionComponent extends React.FC {
+    nodeFunction: () => any;
+}
+
+const HelloWorldExtension: HelloWorldExtensionComponent = () => {
     const [greeting, setGreeting] = useState('Hello, World!');
     const [timestamp, setTimestamp] = useState('');
     const [clickCount, setClickCount] = useState(0);
@@ -143,6 +148,22 @@ const HelloWorldExtension: React.FC = () => {
             </div>
         </div>
     );
+};
+
+// Add static function that can be accessed before component is used
+HelloWorldExtension.nodeFunction = () => {
+    console.log("HelloWorldExtension nodeFunction called");
+    return {
+        name: "hello-world-extension",
+        version: "1.0.0",
+        capabilities: ["greeting", "interaction-counter"],
+        initialize: () => {
+            console.log("HelloWorldExtension initialized");
+        },
+        cleanup: () => {
+            console.log("HelloWorldExtension cleanup");
+        }
+    };
 };
 
 export default HelloWorldExtension;

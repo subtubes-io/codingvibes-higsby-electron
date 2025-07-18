@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { ExtensionManifest } from '../../types/extension';
+import { ExtensionService } from '../../services/extensionService';
 import PluginsSidebar from '../PluginsSidebar';
 import './GraphView.css';
 
@@ -14,6 +15,9 @@ const GraphView: React.FC = () => {
     const [zoom, setZoom] = useState(1);
     const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
     const [loadedExtensions, setLoadedExtensions] = useState<Record<string, ExtensionComponent>>({});
+    const [extensionService] = useState(() => new ExtensionService());
+    const [extensionFunctions, setExtensionFunctions] = useState<Record<string, any>>({});
+    const [isPlaying, setIsPlaying] = useState(false);
 
     const [dragState, setDragState] = useState<{
         isDragging: boolean;
@@ -47,6 +51,45 @@ const GraphView: React.FC = () => {
     const handleZoomToFit = useCallback(() => {
         setZoom(1);
         setPanOffset({ x: 0, y: 0 });
+    }, []);
+
+    // Get all available extension functions
+    const getAllExtensionFunctions = useCallback(() => {
+        return extensionService.getAllExtensionFunctions();
+    }, [extensionService]);
+
+    const handlePlay = useCallback(() => {
+        setIsPlaying(true);
+
+        // Get all extension functions from the ExtensionService
+        const allExtensionFunctions = getAllExtensionFunctions();
+        const localExtensionFunctions = extensionFunctions;
+
+        console.log('🎬 PLAY BUTTON CLICKED - Extension Functions Map:');
+        console.log('=====================================');
+
+        console.log('Local Extension Functions:', localExtensionFunctions);
+        console.log('ExtensionService Functions:', allExtensionFunctions);
+
+        // Call all available functions and log their results
+        console.log('\n🔧 Calling all extension functions:');
+        Object.entries(localExtensionFunctions).forEach(([extensionId, func]) => {
+            if (typeof func === 'function') {
+                try {
+                    const result = func({ source: 'play-button', timestamp: new Date().toISOString() });
+                    console.log(`✅ ${extensionId}:`, result);
+                } catch (error) {
+                    console.error(`❌ Error calling ${extensionId}:`, error);
+                }
+            }
+        });
+
+        console.log('=====================================');
+    }, [extensionFunctions, getAllExtensionFunctions]);
+
+    const handlePause = useCallback(() => {
+        setIsPlaying(false);
+        console.log('⏸️ PAUSE BUTTON CLICKED - Execution paused');
     }, []);
 
     const handleExportGraph = useCallback(() => {
@@ -239,6 +282,104 @@ const GraphView: React.FC = () => {
         addPluginToGraph(plugin);
     }, []);
 
+    // Load extension functions using ExtensionService
+    const loadExtensionFunctions = useCallback(async (plugin: ExtensionManifest) => {
+        try {
+            // Use componentName as the extension identifier
+            const extensionId = plugin.componentName;
+            console.log("extension id ---->", extensionId);
+            console.log("plugin object ---->", plugin);
+
+            console.log(`🔄 Loading extension function for: ${plugin.name} (ID: ${extensionId})`);
+
+            // Debug: Check what extensions are available
+            const availableExtensions = await extensionService.getExtensions();
+            console.log("Available extensions from API:", availableExtensions);
+
+            // First check if ExtensionService can find the extension metadata
+            const metadata = await extensionService.getExtensionMetadata(extensionId);
+            console.log("extension metadata ---->", metadata);
+
+            // Load the extension component to trigger function registration
+            const component = await extensionService.loadExtensionComponent(extensionId);
+            console.log('this is the component----->', component);
+
+            // If ExtensionService fails, try our local loadExtension method as fallback
+            let finalComponent = component;
+            if (!component) {
+                console.log('🔄 ExtensionService failed, trying local loadExtension method...');
+                finalComponent = await loadExtension(plugin);
+                console.log('Local loadExtension result:', finalComponent);
+            }
+
+            if (finalComponent) {
+                // Get the registered function from ExtensionService first
+                let func = extensionService.getExtensionFunction(extensionId);
+
+
+                // If no function in ExtensionService, try to extract from the component directly
+                const componentWithFunction = finalComponent as any;
+                if (!func && componentWithFunction.nodeFunction && typeof componentWithFunction.nodeFunction === 'function') {
+                    console.log('🔄 Extracting nodeFunction directly from component...');
+                    func = componentWithFunction.nodeFunction;
+                    // Also register it in the ExtensionService for consistency
+                    try {
+                        (extensionService as any).extensionFunctions.set(extensionId, func);
+                        console.log(`✅ Manually registered function in ExtensionService for: ${extensionId}`);
+                    } catch (error) {
+                        console.warn('Failed to manually register function in ExtensionService:', error);
+                    }
+                }
+
+                if (func) {
+                    setExtensionFunctions(prev => {
+                        const updated = {
+                            ...prev,
+                            [extensionId]: func
+                        };
+                        console.log("!!!!!!!!!!! --->", typeof func)
+                        func();
+                        console.log(`✅ Added function to map for: ${plugin.name}`);
+                        console.log(`📊 Current function map:`, Object.keys(updated));
+                        return updated;
+                    });
+                    console.log(`🎯 Successfully loaded extension function for: ${plugin.name}`);
+                } else {
+                    console.warn(`⚠️ No nodeFunction found for: ${plugin.name}`);
+                }
+            } else {
+                console.warn(`⚠️ Failed to load extension component for: ${plugin.name}`);
+            }
+        } catch (error) {
+            console.error(`❌ Failed to load extension function for ${plugin.name}:`, error);
+        }
+    }, [extensionService]);
+
+    // Call extension function for a specific node
+    const callNodeFunction = useCallback((nodeId: string, params: any = {}) => {
+        const node = graphNodes.find(n => n.id === nodeId);
+        if (!node || !node.plugin) {
+            console.warn(`Node ${nodeId} not found or has no plugin`);
+            return null;
+        }
+
+        const extensionId = node.plugin.componentName || node.plugin.name;
+        const func = extensionFunctions[extensionId];
+        if (func && typeof func === 'function') {
+            try {
+                const result = func(params);
+                console.log(`Function result for node ${nodeId}:`, result);
+                return result;
+            } catch (error) {
+                console.error(`Error calling function for node ${nodeId}:`, error);
+                return null;
+            }
+        } else {
+            console.warn(`No function available for node ${nodeId}`);
+            return null;
+        }
+    }, [graphNodes, extensionFunctions]);
+
     const addPluginToGraph = useCallback((plugin: ExtensionManifest) => {
         setGraphNodes(prev => {
 
@@ -255,7 +396,7 @@ const GraphView: React.FC = () => {
                 id: crypto.randomUUID(), // Generate unique UUID for each node
                 name: plugin.name,
                 type: 'plugin',
-                extension: plugin.name.toLowerCase().replace(/\s+/g, '-'), // Extension identifier
+                extension: plugin.name.toLowerCase().replace(/\s+/g, '-'), // Extension identifier // todo:#edgar  this should be the component name
                 plugin: plugin,
                 position: {
                     x: offsetX + (col * spacing),
@@ -265,7 +406,10 @@ const GraphView: React.FC = () => {
 
             return [...prev, newNode];
         });
-    }, []);
+
+        // Load extension functions when adding node to graph
+        loadExtensionFunctions(plugin);
+    }, [loadExtensionFunctions]);
 
     const removeNodeFromGraph = useCallback((nodeId: string) => {
         setGraphNodes(prev => {
@@ -431,6 +575,23 @@ const GraphView: React.FC = () => {
 
                     <div className="graph-controls">
                         <button
+                            className={`graph-control-button ${isPlaying ? 'active' : ''}`}
+                            title={isPlaying ? "Pause Execution" : "Play/Execute All Functions"}
+                            onClick={isPlaying ? handlePause : handlePlay}
+                        >
+                            {isPlaying ? (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                    <rect x="6" y="4" width="4" height="16"></rect>
+                                    <rect x="14" y="4" width="4" height="16"></rect>
+                                </svg>
+                            ) : (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                    <polygon points="5,3 19,12 5,21"></polygon>
+                                </svg>
+                            )}
+                        </button>
+
+                        <button
                             className="graph-control-button"
                             title="Clear Graph"
                             onClick={() => setGraphNodes([])}
@@ -557,6 +718,50 @@ const GraphView: React.FC = () => {
                                                 {node.plugin?.description && (
                                                     <div className="plugin-description">
                                                         {node.plugin.description}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* Extension Function Controls */}
+                                        {node.plugin && (
+                                            <div className="node-functions">
+                                                {extensionFunctions[node.plugin.componentName || node.plugin.name] ? (
+                                                    <div className="function-controls">
+                                                        <button
+                                                            className="call-function-btn"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                e.stopPropagation();
+                                                                const result = callNodeFunction(node.id, { nodeId: node.id, nodeName: node.name });
+                                                                if (result) {
+                                                                    console.log(`Function called for ${node.name}:`, result);
+                                                                    // You could show a toast notification here
+                                                                }
+                                                            }}
+                                                            title="Call Extension Function"
+                                                        >
+                                                            🔧 Call Function
+                                                        </button>
+
+                                                        <button
+                                                            className="show-capabilities-btn"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                e.stopPropagation();
+                                                                const extensionId = node.plugin.componentName || node.plugin.name;
+                                                                const capabilities = extensionService.callExtensionFunction(extensionId);
+                                                                console.log(`Capabilities for ${node.name}:`, capabilities);
+                                                                alert(`Extension capabilities:\n${JSON.stringify(capabilities, null, 2)}`);
+                                                            }}
+                                                            title="Show Extension Capabilities"
+                                                        >
+                                                            📋 Info
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="no-function">
+                                                        <small>No functions available</small>
                                                     </div>
                                                 )}
                                             </div>

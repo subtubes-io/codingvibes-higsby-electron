@@ -29,6 +29,7 @@ export class ExtensionService {
     private baseUrl: string;
     private cache: Map<string, ExtensionManifest> = new Map();
     private loadedComponents: Map<string, React.ComponentType<any>> = new Map();
+    private extensionFunctions: Map<string, any> = new Map(); // Store static functions
 
     constructor(baseUrl: string = 'http://localhost:8888') {
         this.baseUrl = baseUrl;
@@ -137,6 +138,8 @@ export class ExtensionService {
      */
     async loadExtensionComponent(extensionId: string): Promise<React.ComponentType<any> | null> {
         try {
+
+            console.log('----> all the loaded extension components', this.loadedComponents.values());
             // Check if already loaded
             if (this.loadedComponents.has(extensionId)) {
                 return this.loadedComponents.get(extensionId)!;
@@ -181,6 +184,25 @@ export class ExtensionService {
             document.head.removeChild(script);
 
             if (Component) {
+                // Extract static nodeFunction if it exists
+                if (Component.nodeFunction && typeof Component.nodeFunction === 'function') {
+                    this.extensionFunctions.set(extensionId, Component.nodeFunction);
+                    console.log(`Registered nodeFunction for extension: ${extensionId}`);
+
+                    // Call the nodeFunction to get extension info and register it
+                    try {
+                        const extensionInfo = Component.nodeFunction();
+                        console.log(`Extension ${extensionId} info:`, extensionInfo);
+
+                        // If the extension has an initialize function, call it
+                        if (extensionInfo?.initialize && typeof extensionInfo.initialize === 'function') {
+                            extensionInfo.initialize();
+                        }
+                    } catch (error) {
+                        console.error(`Error calling nodeFunction for ${extensionId}:`, error);
+                    }
+                }
+
                 this.loadedComponents.set(extensionId, Component);
                 return Component;
             } else {
@@ -271,6 +293,64 @@ export class ExtensionService {
                 error: error instanceof Error ? error.message : 'Unknown deletion error'
             };
         }
+    }
+
+    /**
+     * Get the static nodeFunction for a specific extension
+     */
+    getExtensionFunction(extensionId: string): any | null {
+        return this.extensionFunctions.get(extensionId) || null;
+    }
+
+    /**
+     * Get all registered extension functions as an object
+     */
+    getAllExtensionFunctions(): Record<string, any> {
+        const functions: Record<string, any> = {};
+        this.extensionFunctions.forEach((func, extensionId) => {
+            functions[extensionId] = func;
+        });
+        return functions;
+    }
+
+    /**
+     * Call a specific extension's nodeFunction and return its result
+     */
+    callExtensionFunction(extensionId: string): any | null {
+        const func = this.extensionFunctions.get(extensionId);
+        if (func && typeof func === 'function') {
+            try {
+                return func();
+            } catch (error) {
+                console.error(`Error calling nodeFunction for ${extensionId}:`, error);
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get extension capabilities and metadata from all loaded extensions
+     */
+    getExtensionCapabilities(): Record<string, any> {
+        const capabilities: Record<string, any> = {};
+        this.extensionFunctions.forEach((func, extensionId) => {
+            try {
+                const info = func();
+                capabilities[extensionId] = {
+                    name: info?.name || extensionId,
+                    version: info?.version || 'unknown',
+                    capabilities: info?.capabilities || [],
+                    ...info
+                };
+            } catch (error) {
+                console.error(`Error getting capabilities for ${extensionId}:`, error);
+                capabilities[extensionId] = {
+                    error: error instanceof Error ? error.message : 'Unknown error'
+                };
+            }
+        });
+        return capabilities;
     }
 
     /**
