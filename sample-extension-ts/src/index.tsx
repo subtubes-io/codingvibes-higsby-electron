@@ -1,9 +1,19 @@
-import React, { useState, useEffect } from 'react';
+// Get React from global scope (provided by host app)
+declare global {
+    interface Window {
+        React: any;
+        ReactDOM: any;
+    }
+}
+
+// Use React from host app instead of importing
+const React = window.React || (globalThis as any).React;
+const { useState, useEffect } = React;
 
 const HelloWorldExtension: React.FC = () => {
-    const [greeting, setGreeting] = useState<string>('Hello, World!');
-    const [timestamp, setTimestamp] = useState<string>('');
-    const [clickCount, setClickCount] = useState<number>(0);
+    const [greeting, setGreeting] = useState('Hello, World!');
+    const [timestamp, setTimestamp] = useState('');
+    const [clickCount, setClickCount] = useState(0);
 
     useEffect(() => {
         const now = new Date();
@@ -21,7 +31,7 @@ const HelloWorldExtension: React.FC = () => {
 
         const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
         setGreeting(randomGreeting);
-        setClickCount(prev => prev + 1);
+        setClickCount((prev: number) => prev + 1);
     };
 
     const containerStyle: React.CSSProperties = {

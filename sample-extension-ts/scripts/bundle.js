@@ -51,20 +51,17 @@ async function createExtensionZip() {
     // Add manifest.json
     archive.file(manifestPath, { name: 'manifest.json' });
 
-    // Add the compiled JavaScript file
-    const indexPath = path.join(distPath, 'index.js');
-    if (fs.existsSync(indexPath)) {
-      archive.file(indexPath, { name: 'index.js' });
-    } else {
-      console.error('❌ index.js not found in dist folder');
-      reject(new Error('index.js not found'));
-      return;
-    }
-
-    // Add any TypeScript declaration files (optional)
-    const declarationPath = path.join(distPath, 'index.d.ts');
-    if (fs.existsSync(declarationPath)) {
-      archive.file(declarationPath, { name: 'index.d.ts' });
+    // Add all files from dist folder (for federation modules)
+    const distFiles = fs.readdirSync(distPath);
+    for (const file of distFiles) {
+      const filePath = path.join(distPath, file);
+      const stat = fs.statSync(filePath);
+      
+      // Only add files, not directories
+      if (stat.isFile()) {
+        archive.file(filePath, { name: file });
+        console.log(`📄 Adding: ${file}`);
+      }
     }
 
     // Finalize the archive

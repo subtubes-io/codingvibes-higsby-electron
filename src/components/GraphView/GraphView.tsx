@@ -102,51 +102,75 @@ const GraphView: React.FC = () => {
 
     // Dynamic extension loader
     const loadExtension = useCallback(async (plugin: ExtensionManifest) => {
-        // Use componentName or fall back to id if componentName is missing
-        const componentKey = plugin.componentName || plugin.id;
+        // Use componentName as the key
+        const componentKey = plugin.componentName;
 
         if (loadedExtensions[componentKey]) {
             return loadedExtensions[componentKey];
         }
 
+        console.log('Attempting to load federated extension:', plugin.name);
+        console.log('Component name:', plugin.componentName);
+        console.log('Using component key:', componentKey);
+
+        // Cross-platform extension loading using componentName or id
+        const isElectron = window.navigator.userAgent.toLowerCase().indexOf('electron') > -1;
+
+        let extensionPath: string;
+        if (isElectron) {
+            // Use componentKey for the folder path (componentName or id as fallback)
+            extensionPath = `extension://${componentKey}/index.js`;
+        } else {
+            // Fallback for web development
+            extensionPath = `/extensions/${componentKey}/index.js`;
+        }
+
+        console.log('Loading extension module from path:', extensionPath);
+
+        // Try a simpler approach - load as ESM and provide React context
         try {
-            console.log('Attempting to load ESM extension:', plugin.name);
-            console.log('Component name:', plugin.componentName);
-            console.log('Plugin id:', plugin.id);
-            console.log('Using component key:', componentKey);
+            // First, ensure React is available globally for the extension
+            const React = (await import('react')).default;
+            const ReactDOM = await import('react-dom');
 
-            // Cross-platform extension loading using componentName or id
-            const isElectron = window.navigator.userAgent.toLowerCase().indexOf('electron') > -1;
+            // Set up global React for the extension to use
+            (window as any).React = React;
+            (window as any).ReactDOM = ReactDOM;
 
-            let extensionPath: string;
-            if (isElectron) {
-                // Use componentKey for the folder path (componentName or id as fallback)
-                extensionPath = `extension://${componentKey}/index.js`;
-            } else {
-                // Fallback for web development
-                extensionPath = `/extensions/${componentKey}/index.js`;
-            }
-
-            console.log('Loading ESM module from path:', extensionPath);
-
-            // For ESM modules, use dynamic import directly
+            // Load the extension module
             const module = await import(/* @vite-ignore */ extensionPath);
-            const ExtensionComponent = module.default as ExtensionComponent;
 
-            if (!ExtensionComponent) {
-                throw new Error(`Extension ${componentKey} does not export a default component`);
+            // Try different ways to get the component
+            let ExtensionComponentClass;
+            if (module.default) {
+                ExtensionComponentClass = module.default;
+            } else if (module.Component) {
+                ExtensionComponentClass = module.Component;
+            } else if (typeof module.get === 'function') {
+                // This is a federation module
+                const componentFactory = await module.get('./Component');
+                ExtensionComponentClass = componentFactory();
+            } else {
+                throw new Error('Could not find component export in extension module');
             }
 
-            console.log('Successfully loaded ESM extension:', componentKey);
+            console.log('ExtensionComponentClass type:', typeof ExtensionComponentClass);
+            console.log('ExtensionComponentClass:', ExtensionComponentClass);
+
+            if (!ExtensionComponentClass) {
+                throw new Error(`Extension ${componentKey} does not export a valid component`);
+            }
+
+            console.log('Successfully loaded extension:', componentKey);
 
             setLoadedExtensions(prev => ({
                 ...prev,
-                [componentKey]: ExtensionComponent // Use componentKey as key
+                [componentKey]: ExtensionComponentClass // Use componentKey as key
             }));
 
-            return ExtensionComponent;
+            return ExtensionComponentClass;
         } catch (error: any) {
-            console.error(`Failed to load ESM extension ${componentKey}:`, error);
+            console.error(`Failed to load extension ${componentKey}:`, error);
             return null;
         }
     }, [loadedExtensions]);

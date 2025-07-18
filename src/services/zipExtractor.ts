@@ -152,6 +152,7 @@ export class ZipExtractor {
 
         return {
             name: manifest.name,
+            componentName: manifest.componentName || manifest.name.replace(/[^a-zA-Z0-9]/g, ''),
             version: manifest.version,
             description: manifest.description,
             author: manifest.author,

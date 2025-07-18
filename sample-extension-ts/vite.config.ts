@@ -1,22 +1,36 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import federation from '@originjs/vite-plugin-federation';
 
 export default defineConfig({
-    plugins: [react()],
+    plugins: [
+        react(),
+        federation({
+            name: 'hello-world-extension',
+            filename: 'index.js',
+            exposes: {
+                './Component': './src/index.tsx'
+            },
+            shared: ['react', 'react-dom']
+        })
+    ],
+    define: {
+        'process.env.NODE_ENV': '"production"',
+        'process.env': '{}',
+        'global': 'globalThis',
+    },
     build: {
-        lib: {
-            entry: 'src/index.tsx',
-            name: 'HelloWorldExtension',
-            fileName: 'index',
-            formats: ['es']
-        },
+        target: 'esnext',
+        minify: false,
+        cssCodeSplit: false,
         rollupOptions: {
-            external: ['react', 'react-dom', 'react/jsx-runtime'],
+            external: ['react', 'react-dom'],
             output: {
-                entryFileNames: 'index.js',
+                minifyInternalExports: false,
+                format: 'es',
                 globals: {
-                    react: 'React',
-                    'react-dom': 'ReactDOM'
+                    'react': 'window.React',
+                    'react-dom': 'window.ReactDOM'
                 }
             }
         }
