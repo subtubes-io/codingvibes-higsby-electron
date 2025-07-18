@@ -57,6 +57,7 @@
 
 .save-graph-btn,
 .save-as-graph-btn,
+.new-graph-btn,
 .refresh-graphs-btn {
     flex: 1;
     min-width: 0;
@@ -76,6 +77,7 @@
 
 .save-graph-btn:hover,
 .save-as-graph-btn:hover,
+.new-graph-btn:hover,
 .refresh-graphs-btn:hover {
     background: linear-gradient(135deg, #036b66 0%, #3d3d3d 100%);
     border-color: #036b66;

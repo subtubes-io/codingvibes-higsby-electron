@@ -387,6 +387,7 @@ const GraphView: React.FC = () => {
         setGraphNodes([]);
         setCurrentGraphId(undefined);
         setCurrentGraphName('Untitled Graph');
+        setCurrentGraphDescription('Visual plugin composition and workflow builder');
         setZoom(1);
         setPanOffset({ x: 0, y: 0 });
         setIsEditingTitle(false);
@@ -505,6 +506,34 @@ const GraphView: React.FC = () => {
             addToast('Failed to save graph copy. Please try again.', 'error');
         }
     }, [graphNodes, zoom, panOffset, currentGraphName, currentGraphDescription, graphStorageService, addToast]);
+
+    const handleNewGraph = useCallback(async () => {
+        try {
+            // Auto-save current graph if it has nodes and changes
+            if (graphNodes.length > 0) {
+                // Save current graph automatically
+                await handleSaveCurrentGraph();
+                addToast('Previous graph saved automatically', 'info');
+            }
+
+            // Create new blank graph
+            setGraphNodes([]);
+            setCurrentGraphId(undefined);
+            setCurrentGraphName('Untitled Graph');
+            setCurrentGraphDescription('Visual plugin composition and workflow builder');
+            setZoom(1);
+            setPanOffset({ x: 0, y: 0 });
+            setIsEditingTitle(false);
+            setEditingNameValue('');
+            setIsEditingDescription(false);
+            setEditingDescriptionValue('');
+
+            addToast('New graph created', 'success');
+        } catch (error) {
+            console.error('Failed to create new graph:', error);
+            addToast('Failed to save previous graph', 'error');
+        }
+    }, [graphNodes.length, handleSaveCurrentGraph, addToast]);
 
     const handleUpdateGraphDescription = useCallback(async (newDescription: string | undefined) => {
         try {
@@ -836,6 +865,7 @@ const GraphView: React.FC = () => {
                 onLoadGraph={handleLoadGraph}
                 onSaveCurrentGraph={handleSaveCurrentGraph}
                 onSaveAsGraph={handleSaveAsGraph}
+                onNewGraph={handleNewGraph}
                 onUpdateGraphDescription={handleUpdateGraphDescription}
                 currentGraphId={currentGraphId}
                 onUpdateGraphName={handleUpdateGraphName}
@@ -943,5 +973,4 @@ const GraphView: React.FC = () => {
     );
 };
 
-export default GraphView;
-// We also need a button to "create  new", to create a new graph. This saves the current graph and creates a new blank one.  
+export default GraphView;  
