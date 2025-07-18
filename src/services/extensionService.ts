@@ -9,6 +9,7 @@ import { ExtensionUploadResult } from '../types/extension';
 export interface ExtensionManifest {
     id: string;
     name: string;
+    componentName: string;
     description: string;
     author: string;
     version: string;

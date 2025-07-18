@@ -11,6 +11,7 @@ const __dirname = path.dirname(__filename);
 export interface ExtensionManifest {
     id: string;
     name: string;
+    componentName: string;
     description: string;
     author: string;
     version: string;
@@ -117,8 +118,8 @@ export class ExtensionService {
                     const manifest = JSON.parse(manifestContent);
 
                     // Validate required fields
-                    if (!manifest.name || !manifest.version || !manifest.author || !manifest.main) {
-                        throw new Error('Invalid manifest: missing required fields');
+                    if (!manifest.name || !manifest.version || !manifest.author || !manifest.main || !manifest.componentName) {
+                        throw new Error('Invalid manifest: missing required fields (name, version, author, main, componentName)');
                     }
 
                     // Check if main file exists
@@ -135,6 +136,7 @@ export class ExtensionService {
                     const extensionManifest: ExtensionManifest = {
                         id: projectName,
                         name: manifest.name,
+                        componentName: manifest.componentName,
                         description: manifest.description || 'No description provided',
                         author: manifest.author,
                         version: manifest.version,
@@ -159,6 +161,7 @@ export class ExtensionService {
                     const errorManifest: ExtensionManifest = {
                         id: projectName,
                         name: `Invalid Extension (${projectName})`,
+                        componentName: projectName,
                         description: 'Failed to load extension',
                         author: 'Unknown',
                         version: '0.0.0',
@@ -215,26 +218,49 @@ export class ExtensionService {
 
     async uploadExtension(zipBuffer: Buffer, fileName: string): Promise<{ success: boolean; extensionId?: string; error?: string }> {
         try {
-            // Generate unique extension ID
-            const timestamp = Date.now();
-            const baseName = path.basename(fileName, path.extname(fileName));
-            const sanitized = baseName.replace(/[^a-zA-Z0-9-_]/g, '-').toLowerCase();
-            const extensionId = `${sanitized}-${timestamp}`;
-
-            const extractPath = path.join(this.extensionsPath, extensionId);
-
-            // Extract ZIP
+            // Extract ZIP to read manifest first
             const zip = new AdmZip(zipBuffer);
 
-            // Validate ZIP structure
+            // Validate ZIP structure and find manifest
             const entries = zip.getEntries();
-            const hasManifest = entries.some(entry =>
+            const manifestEntry = entries.find(entry =>
                 entry.entryName === 'manifest.json' ||
                 entry.entryName.endsWith('/manifest.json')
             );
 
-            if (!hasManifest) {
+            if (!manifestEntry) {
                 return { success: false, error: 'Missing manifest.json file' };
+            }
+
+            // Read and parse manifest from ZIP
+            let manifest: any;
+            try {
+                const manifestContent = manifestEntry.getData().toString('utf8');
+                manifest = JSON.parse(manifestContent);
+
+                if (!manifest.name || !manifest.version || !manifest.author || !manifest.main || !manifest.componentName) {
+                    throw new Error('Invalid manifest: missing required fields (name, version, author, main, componentName)');
+                }
+            } catch (error) {
+                return {
+                    success: false,
+                    error: `Invalid manifest: ${error instanceof Error ? error.message : 'Could not parse manifest.json'}`
+                };
+            }
+
+            // Use componentName as the folder name (single source of truth)
+            const extensionId = manifest.componentName;
+            const extractPath = path.join(this.extensionsPath, extensionId);
+
+            // Check if extension already exists
+            try {
+                await fs.access(extractPath);
+                return {
+                    success: false,
+                    error: `Component "${manifest.componentName}" already exists. Please uninstall the existing version first.`
+                };
+            } catch {
+                // Extension doesn't exist, which is what we want
             }
 
             // Check file size limits (10MB per file)
@@ -249,26 +275,16 @@ export class ExtensionService {
             await fs.mkdir(extractPath, { recursive: true });
             zip.extractAllTo(extractPath, true);
 
-            // Validate manifest
+            // Validate that the main file was extracted correctly
             try {
-                const manifestPath = path.join(extractPath, 'manifest.json');
-                const manifestContent = await fs.readFile(manifestPath, 'utf-8');
-                const manifest = JSON.parse(manifestContent);
-
-                if (!manifest.name || !manifest.version || !manifest.author || !manifest.main) {
-                    throw new Error('Invalid manifest: missing required fields');
-                }
-
-                // Check if main file exists
                 const mainFilePath = path.join(extractPath, manifest.main);
                 await fs.access(mainFilePath);
-
             } catch (error) {
                 // Cleanup on validation failure
                 await fs.rm(extractPath, { recursive: true, force: true });
                 return {
                     success: false,
-                    error: `Invalid extension: ${error instanceof Error ? error.message : 'Unknown error'}`
+                    error: `Main file ${manifest.main} not found in extracted extension`
                 };
             }
 

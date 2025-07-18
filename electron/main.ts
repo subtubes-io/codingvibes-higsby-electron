@@ -1,6 +1,8 @@
-import { app, BrowserWindow, shell, ipcMain } from 'electron'
+import { app, BrowserWindow, shell, ipcMain, protocol } from 'electron'
 import { spawn, ChildProcess } from 'node:child_process'
 import * as path from 'path'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
 
 // __dirname is available in CommonJS mode
 
@@ -110,6 +112,53 @@ function stopServer(): Promise<void> {
     })
 }
 
+// Extension protocol registration
+function registerExtensionProtocol() {
+    // Get the cross-platform extensions directory
+    function getExtensionsPath(): string {
+        const appName = 'cdv-electron'
+
+        switch (os.platform()) {
+            case 'darwin': // macOS
+                return path.join(os.homedir(), 'Library', 'Application Support', appName, 'extensions')
+            case 'win32': // Windows
+                return path.join(os.homedir(), 'AppData', 'Roaming', appName, 'extensions')
+            case 'linux': // Linux
+                return path.join(os.homedir(), '.config', appName, 'extensions')
+            default:
+                return path.join(os.homedir(), '.cdv-electron', 'extensions')
+        }
+    }
+
+    protocol.registerFileProtocol('extension', (request, callback) => {
+        try {
+            // Parse the URL: extension://componentName/file.js
+            const url = new URL(request.url)
+            const componentName = url.hostname
+            const filePath = url.pathname.substring(1) // Remove leading slash
+
+            // Build the full path to the extension file
+            const extensionsPath = getExtensionsPath()
+            const fullPath = path.join(extensionsPath, componentName, filePath)
+
+            console.log(`Extension protocol: Loading ${request.url} -> ${fullPath}`)
+
+            // Check if file exists
+            if (fs.existsSync(fullPath)) {
+                callback({ path: fullPath })
+            } else {
+                console.error(`Extension file not found: ${fullPath}`)
+                callback({ error: -6 }) // net::ERR_FILE_NOT_FOUND
+            }
+        } catch (error) {
+            console.error('Extension protocol error:', error)
+            callback({ error: -2 }) // net::ERR_FAILED
+        }
+    })
+
+    console.log('✅ Extension protocol registered')
+}
+
 let win: BrowserWindow | null = null
 const preload = path.join(__dirname, 'preload.js')
 const url = VITE_DEV_SERVER_URL
@@ -152,7 +201,10 @@ async function createWindow() {
 
 app.whenReady().then(async () => {
     try {
-        // Start the server first
+        // Register custom protocols first
+        registerExtensionProtocol()
+
+        // Start the server
         await startServer()
 
         // Then create the window

@@ -6,6 +6,8 @@
 export interface ExtensionManifest {
     /** Unique name of the extension */
     name: string;
+    /** Component name used for folder and loading */
+    componentName: string;
     /** Semantic version of the extension */
     version: string;
     /** Short description of what the extension does */

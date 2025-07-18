@@ -3,11 +3,17 @@ import { ExtensionManifest } from '../../types/extension';
 import PluginsSidebar from '../PluginsSidebar';
 import './GraphView.css';
 
+// Add interface for extension components
+interface ExtensionComponent extends React.FC {
+    nodeFunction?: (params: any) => any;
+}
+
 const GraphView: React.FC = () => {
     const [isPluginsSidebarCollapsed, setIsPluginsSidebarCollapsed] = useState(false);
     const [graphNodes, setGraphNodes] = useState<any[]>([]);
     const [zoom, setZoom] = useState(1);
     const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+    const [loadedExtensions, setLoadedExtensions] = useState<Record<string, ExtensionComponent>>({});
 
     // Debug: Log graph nodes changes
     useEffect(() => {
@@ -93,6 +99,74 @@ const GraphView: React.FC = () => {
 
         console.log('Graph exported:', graphData);
     }, [graphNodes, zoom, panOffset]);
+
+    // Dynamic extension loader
+    const loadExtension = useCallback(async (plugin: ExtensionManifest) => {
+        // Use componentName or fall back to id if componentName is missing
+        const componentKey = plugin.componentName || plugin.id;
+
+        if (loadedExtensions[componentKey]) {
+            return loadedExtensions[componentKey];
+        }
+
+        try {
+            console.log('Attempting to load ESM extension:', plugin.name);
+            console.log('Component name:', plugin.componentName);
+            console.log('Plugin id:', plugin.id);
+            console.log('Using component key:', componentKey);
+
+            // Cross-platform extension loading using componentName or id
+            const isElectron = window.navigator.userAgent.toLowerCase().indexOf('electron') > -1;
+
+            let extensionPath: string;
+            if (isElectron) {
+                // Use componentKey for the folder path (componentName or id as fallback)
+                extensionPath = `extension://${componentKey}/index.js`;
+            } else {
+                // Fallback for web development
+                extensionPath = `/extensions/${componentKey}/index.js`;
+            }
+
+            console.log('Loading ESM module from path:', extensionPath);
+
+            // For ESM modules, use dynamic import directly
+            const module = await import(/* @vite-ignore */ extensionPath);
+            const ExtensionComponent = module.default as ExtensionComponent;
+
+            if (!ExtensionComponent) {
+                throw new Error(`Extension ${componentKey} does not export a default component`);
+            }
+
+            console.log('Successfully loaded ESM extension:', componentKey);
+
+            setLoadedExtensions(prev => ({
+                ...prev,
+                [componentKey]: ExtensionComponent // Use componentKey as key
+            }));
+
+            return ExtensionComponent;
+        } catch (error: any) {
+            console.error(`Failed to load ESM extension ${componentKey}:`, error);
+            return null;
+        }
+    }, [loadedExtensions]);
+
+    // Load extensions when nodes are added
+    useEffect(() => {
+        console.log('useEffect triggered - checking for extensions to load');
+        console.log('graphNodes:', graphNodes);
+        console.log('loadedExtensions:', loadedExtensions);
+
+        graphNodes.forEach(node => {
+            console.log('Checking node:', node.name, 'plugin:', node.plugin);
+            if (node.plugin && !loadedExtensions[node.plugin.componentName]) {
+                console.log('Loading extension for node:', node.name, 'componentName:', node.plugin.componentName);
+                loadExtension(node.plugin);
+            } else if (node.plugin) {
+                console.log('Extension already loaded for:', node.plugin.componentName);
+            }
+        });
+    }, [graphNodes, loadedExtensions, loadExtension]);
 
     const handleImportGraph = useCallback(() => {
         const input = document.createElement('input');
@@ -473,11 +547,27 @@ const GraphView: React.FC = () => {
                                     </div>
 
                                     <div className="node-content">
-                                        {node.plugin && (
+                                        {(() => {
+                                            console.log("name --->", node.plugin.componentName);
+                                            console.log("extension ->>>", JSON.stringify(loadedExtensions));
+                                            return null;
+                                        })()}
+                                        {node.plugin && loadedExtensions[node.plugin.componentName] ? (
+                                            <div className="extension-container">
+                                                {React.createElement(loadedExtensions[node.plugin.componentName])}
+                                            </div>
+                                        ) : node.plugin ? (
+                                            <div className="extension-loading">
+                                                <div>Loading {node.plugin.name}...</div>
+                                                <div className="plugin-info">
+                                                    <small>v{node.plugin.version} by {node.plugin.author}</small>
+                                                </div>
+                                            </div>
+                                        ) : (
                                             <div className="node-plugin-info">
-                                                <div className="plugin-version">v{node.plugin.version}</div>
-                                                <div className="plugin-author">{node.plugin.author}</div>
-                                                {node.plugin.description && (
+                                                <div className="plugin-version">v{node.plugin?.version}</div>
+                                                <div className="plugin-author">{node.plugin?.author}</div>
+                                                {node.plugin?.description && (
                                                     <div className="plugin-description">
                                                         {node.plugin.description}
                                                     </div>
