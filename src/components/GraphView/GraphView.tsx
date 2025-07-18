@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { ExtensionManifest } from '../../types/extension';
 import { ExtensionService } from '../../services/extensionService';
 import PluginsSidebar from '../PluginsSidebar';
+import GraphNode from './GraphNode';
 import './GraphView.css';
 
 // Add interface for extension components
@@ -663,120 +664,15 @@ const GraphView: React.FC = () => {
                     >
                         <div className="graph-nodes">
                             {graphNodes.map(node => (
-                                <div
+                                <GraphNode
                                     key={node.id}
-                                    className={`graph-node ${dragState.isDragging && dragState.nodeId === node.id ? 'dragging' : ''}`}
-                                    style={{
-                                        left: node.position.x,
-                                        top: node.position.y,
-                                        cursor: 'grab'
-                                    }}
-                                    onMouseDown={(e) => handleMouseDown(e, node.id)}
-                                >
-                                    <div className="node-header">
-                                        <div className="node-icon">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                                <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
-                                                <line x1="16" y1="8" x2="2" y2="22"></line>
-                                                <line x1="17.5" y1="15" x2="9" y2="15"></line>
-                                            </svg>
-                                        </div>
-                                        <div className="node-title">{node.name}</div>
-                                        <button
-                                            className="node-remove"
-                                            onMouseDown={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                            }}
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                removeNodeFromGraph(node.id);
-                                            }}
-                                            title="Remove Node"
-                                        >
-                                            ×
-                                        </button>
-                                    </div>
-
-                                    <div className="node-content">
-                                        {node.plugin && loadedExtensions[node.plugin.componentName] ? (
-                                            <div className="extension-container">
-                                                {React.createElement(loadedExtensions[node.plugin.componentName])}
-                                            </div>
-                                        ) : node.plugin ? (
-                                            <div className="extension-loading">
-                                                <div>Loading {node.plugin.name}...</div>
-                                                <div className="plugin-info">
-                                                    <small>v{node.plugin.version} by {node.plugin.author}</small>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <div className="node-plugin-info">
-                                                <div className="plugin-version">v{node.plugin?.version}</div>
-                                                <div className="plugin-author">{node.plugin?.author}</div>
-                                                {node.plugin?.description && (
-                                                    <div className="plugin-description">
-                                                        {node.plugin.description}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        {/* Extension Function Controls */}
-                                        {node.plugin && (
-                                            <div className="node-functions">
-                                                {extensionFunctions[node.plugin.componentName || node.plugin.name] ? (
-                                                    <div className="function-controls">
-                                                        <button
-                                                            className="call-function-btn"
-                                                            onClick={(e) => {
-                                                                e.preventDefault();
-                                                                e.stopPropagation();
-                                                                const result = callNodeFunction(node.id, { nodeId: node.id, nodeName: node.name });
-                                                                if (result) {
-                                                                    console.log(`Function called for ${node.name}:`, result);
-                                                                    // You could show a toast notification here
-                                                                }
-                                                            }}
-                                                            title="Call Extension Function"
-                                                        >
-                                                            🔧 Call Function
-                                                        </button>
-
-                                                        <button
-                                                            className="show-capabilities-btn"
-                                                            onClick={(e) => {
-                                                                e.preventDefault();
-                                                                e.stopPropagation();
-                                                                const extensionId = node.plugin.componentName || node.plugin.name;
-                                                                const capabilities = extensionService.callExtensionFunction(extensionId);
-                                                                console.log(`Capabilities for ${node.name}:`, capabilities);
-                                                                alert(`Extension capabilities:\n${JSON.stringify(capabilities, null, 2)}`);
-                                                            }}
-                                                            title="Show Extension Capabilities"
-                                                        >
-                                                            📋 Info
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <div className="no-function">
-                                                        <small>No functions available</small>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="node-ports">
-                                        <div className="input-ports">
-                                            <div className="port input-port" title="Input"></div>
-                                        </div>
-                                        <div className="output-ports">
-                                            <div className="port output-port" title="Output"></div>
-                                        </div>
-                                    </div>
-                                </div>
+                                    node={node}
+                                    dragState={dragState}
+                                    loadedExtensions={loadedExtensions}
+                                    onMouseDown={handleMouseDown}
+                                    onRemoveNode={removeNodeFromGraph}
+                                    onCallFunction={callNodeFunction}
+                                />
                             ))}
                         </div>
                     </div>
