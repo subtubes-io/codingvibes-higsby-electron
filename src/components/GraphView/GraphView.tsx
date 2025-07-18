@@ -15,10 +15,6 @@ const GraphView: React.FC = () => {
     const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
     const [loadedExtensions, setLoadedExtensions] = useState<Record<string, ExtensionComponent>>({});
 
-    // Debug: Log graph nodes changes
-    useEffect(() => {
-        console.log('GraphNodes updated:', graphNodes);
-    }, [graphNodes]);
     const [dragState, setDragState] = useState<{
         isDragging: boolean;
         nodeId: string | null;
@@ -97,7 +93,6 @@ const GraphView: React.FC = () => {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
 
-        console.log('Graph exported:', graphData);
     }, [graphNodes, zoom, panOffset]);
 
     // Dynamic extension loader
@@ -108,10 +103,6 @@ const GraphView: React.FC = () => {
         if (loadedExtensions[componentKey]) {
             return loadedExtensions[componentKey];
         }
-
-        console.log('Attempting to load federated extension:', plugin.name);
-        console.log('Component name:', plugin.componentName);
-        console.log('Using component key:', componentKey);
 
         // Cross-platform extension loading using componentName or id
         const isElectron = window.navigator.userAgent.toLowerCase().indexOf('electron') > -1;
@@ -125,7 +116,6 @@ const GraphView: React.FC = () => {
             extensionPath = `/extensions/${componentKey}/index.js`;
         }
 
-        console.log('Loading extension module from path:', extensionPath);
 
         // Try a simpler approach - load as ESM and provide React context
         try {
@@ -154,14 +144,10 @@ const GraphView: React.FC = () => {
                 throw new Error('Could not find component export in extension module');
             }
 
-            console.log('ExtensionComponentClass type:', typeof ExtensionComponentClass);
-            console.log('ExtensionComponentClass:', ExtensionComponentClass);
-
             if (!ExtensionComponentClass) {
                 throw new Error(`Extension ${componentKey} does not export a valid component`);
             }
 
-            console.log('Successfully loaded extension:', componentKey);
 
             setLoadedExtensions(prev => ({
                 ...prev,
@@ -177,17 +163,12 @@ const GraphView: React.FC = () => {
 
     // Load extensions when nodes are added
     useEffect(() => {
-        console.log('useEffect triggered - checking for extensions to load');
-        console.log('graphNodes:', graphNodes);
-        console.log('loadedExtensions:', loadedExtensions);
-
         graphNodes.forEach(node => {
-            console.log('Checking node:', node.name, 'plugin:', node.plugin);
             if (node.plugin && !loadedExtensions[node.plugin.componentName]) {
-                console.log('Loading extension for node:', node.name, 'componentName:', node.plugin.componentName);
+
                 loadExtension(node.plugin);
             } else if (node.plugin) {
-                console.log('Extension already loaded for:', node.plugin.componentName);
+                //
             }
         });
     }, [graphNodes, loadedExtensions, loadExtension]);
@@ -221,7 +202,6 @@ const GraphView: React.FC = () => {
                             }
                         }
 
-                        console.log('Graph imported successfully:', jsonData);
                     } else {
                         console.error('Invalid graph file format');
                         alert('Invalid graph file format. Please select a valid graph export file.');
@@ -256,15 +236,11 @@ const GraphView: React.FC = () => {
     }, []);
 
     const handleAddToGraph = useCallback((plugin: ExtensionManifest) => {
-        console.log('handleAddToGraph called with plugin:', plugin);
         addPluginToGraph(plugin);
     }, []);
 
     const addPluginToGraph = useCallback((plugin: ExtensionManifest) => {
-        console.log('addPluginToGraph called with plugin:', plugin);
-
         setGraphNodes(prev => {
-            console.log('Current graphNodes:', prev);
 
             const existingNodeCount = prev.length;
             const gridSize = Math.ceil(Math.sqrt(existingNodeCount + 1));
@@ -287,20 +263,13 @@ const GraphView: React.FC = () => {
                 }
             };
 
-            console.log('Creating new node:', newNode);
-
-            // Since we use UUIDs, each node is unique - no need to check for duplicates
-            console.log('Adding new node to graph');
             return [...prev, newNode];
         });
     }, []);
 
     const removeNodeFromGraph = useCallback((nodeId: string) => {
-        console.log('removeNodeFromGraph called with nodeId:', nodeId);
         setGraphNodes(prev => {
-            console.log('Current graphNodes before removal:', prev);
             const filtered = prev.filter(node => node.id !== nodeId);
-            console.log('Filtered nodes after removal:', filtered);
             return filtered;
         });
     }, []);
@@ -561,7 +530,6 @@ const GraphView: React.FC = () => {
                                             onClick={(e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();
-                                                console.log('Remove button clicked for node:', node.id);
                                                 removeNodeFromGraph(node.id);
                                             }}
                                             title="Remove Node"
@@ -571,11 +539,6 @@ const GraphView: React.FC = () => {
                                     </div>
 
                                     <div className="node-content">
-                                        {(() => {
-                                            console.log("name --->", node.plugin.componentName);
-                                            console.log("extension ->>>", JSON.stringify(loadedExtensions));
-                                            return null;
-                                        })()}
                                         {node.plugin && loadedExtensions[node.plugin.componentName] ? (
                                             <div className="extension-container">
                                                 {React.createElement(loadedExtensions[node.plugin.componentName])}
