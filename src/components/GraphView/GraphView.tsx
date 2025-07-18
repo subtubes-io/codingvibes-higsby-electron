@@ -208,88 +208,26 @@ const GraphView: React.FC = () => {
         }
     }, [graphNodes, zoom, panOffset, currentGraphName, graphStorageService, addToast]);
 
-    // Dynamic extension loader
-    const loadExtension = useCallback(async (plugin: ExtensionManifest) => {
-        // Use componentName as the key
-        const componentKey = plugin.componentName;
-
-        // Debug logging to help track down the undefined issue
-        if (!componentKey) {
-            console.error('🚨 loadExtension called with undefined componentName:', plugin);
-            return null;
-        }
-
-        if (loadedExtensions[componentKey]) {
-            return loadedExtensions[componentKey];
-        }
-
-        // Cross-platform extension loading using componentName or id
-        const isElectron = window.navigator.userAgent.toLowerCase().indexOf('electron') > -1;
-
-        let extensionPath: string;
-        if (isElectron) {
-            // Use componentKey for the folder path (componentName or id as fallback)
-            extensionPath = `extension://${componentKey}/index.js`;
-        } else {
-            // Fallback for web development
-            extensionPath = `/extensions/${componentKey}/index.js`;
-        }
-
-
-        // Try a simpler approach - load as ESM and provide React context
-        try {
-            // First, ensure React is available globally for the extension
-            const React = (await import('react')).default;
-            const ReactDOM = await import('react-dom');
-
-            // Set up global React for the extension to use
-            (window as any).React = React;
-            (window as any).ReactDOM = ReactDOM;
-
-            // Load the extension module
-            const module = await import(/* @vite-ignore */ extensionPath);
-
-            // Try different ways to get the component
-            let ExtensionComponentClass;
-            if (module.default) {
-                ExtensionComponentClass = module.default;
-            } else if (module.Component) {
-                ExtensionComponentClass = module.Component;
-            } else if (typeof module.get === 'function') {
-                // This is a federation module
-                const componentFactory = await module.get('./Component');
-                ExtensionComponentClass = componentFactory();
-            } else {
-                throw new Error('Could not find component export in extension module');
-            }
-
-            if (!ExtensionComponentClass) {
-                throw new Error(`Extension ${componentKey} does not export a valid component`);
-            }
-
-
-            setLoadedExtensions(prev => ({
-                ...prev,
-                [componentKey]: ExtensionComponentClass // Use componentKey as key
-            }));
-
-            return ExtensionComponentClass;
-        } catch (error: any) {
-            console.error(`Failed to load extension ${componentKey}:`, error);
-            return null;
-        }
-    }, [loadedExtensions]);
-
     // Load extensions when nodes are added
     useEffect(() => {
-        graphNodes.forEach(node => {
+        graphNodes.forEach(async (node) => {
             if (node.plugin && node.plugin.componentName && !loadedExtensions[node.plugin.componentName]) {
-                loadExtension(node.plugin);
+                try {
+                    const component = await extensionService.loadExtensionComponent(node.plugin.componentName);
+                    if (component) {
+                        setLoadedExtensions(prev => ({
+                            ...prev,
+                            [node.plugin.componentName]: component
+                        }));
+                    }
+                } catch (error) {
+                    console.error('Failed to load extension component:', node.plugin.componentName, error);
+                }
             } else if (node.plugin && !node.plugin.componentName) {
                 console.error('Node has plugin but missing componentName:', node.name, node.plugin);
             }
         });
-    }, [graphNodes, loadedExtensions, loadExtension]);
+    }, [graphNodes, loadedExtensions, extensionService]);
 
     const handleImportGraph = useCallback(() => {
         const input = document.createElement('input');
@@ -554,26 +492,17 @@ const GraphView: React.FC = () => {
             // Load the extension component to trigger function registration
             const component = await extensionService.loadExtensionComponent(extensionId);
 
-            // If ExtensionService fails, try our local loadExtension method as fallback
-            let finalComponent = component;
-            if (!component) {
-                finalComponent = await loadExtension(plugin);
-            }
-
-            if (finalComponent) {
-                // Get the registered function from ExtensionService first
+            if (component) {
+                // Get the registered function from ExtensionService
                 let func = extensionService.getExtensionFunction(extensionId);
 
-
                 // If no function in ExtensionService, try to extract from the component directly
-                const componentWithFunction = finalComponent as any;
+                const componentWithFunction = component as any;
                 if (!func && componentWithFunction.nodeFunction && typeof componentWithFunction.nodeFunction === 'function') {
-
                     func = componentWithFunction.nodeFunction;
                     // Also register it in the ExtensionService for consistency
                     try {
                         (extensionService as any).extensionFunctions.set(extensionId, func);
-
                     } catch (error) {
                         console.warn('Failed to manually register function in ExtensionService:', error);
                     }

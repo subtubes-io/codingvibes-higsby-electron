@@ -138,7 +138,6 @@ export class ExtensionService {
      */
     async loadExtensionComponent(extensionId: string): Promise<React.ComponentType<any> | null> {
         try {
-
             console.log('----> all the loaded extension components', this.loadedComponents.values());
             // Check if already loaded
             if (this.loadedComponents.has(extensionId)) {
@@ -151,62 +150,62 @@ export class ExtensionService {
                 return null;
             }
 
-            // Dynamically import the extension component
-            const response = await fetch(`${this.baseUrl}/api/extensions/${extensionId}`);
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.status}`);
+            // For module federation extensions, load as ES modules
+            const isElectron = window.navigator.userAgent.toLowerCase().indexOf('electron') > -1;
+            let extensionPath: string;
+
+            if (isElectron) {
+                // Use the extension:// protocol for Electron
+                extensionPath = `extension://${extensionId}/index.js`;
+            } else {
+                // For web development, use relative path
+                extensionPath = `/extensions/${extensionId}/index.js`;
             }
 
-            const extensionCode = await response.text();
-
-            // Make sure React is available globally for UMD modules
-            const ReactModule = React;
-            const ReactDOMModule = await import('react-dom');
-
+            // Make React available globally for the extension
             if (typeof window !== 'undefined') {
-                (window as any).react = ReactModule;
-                (window as any).React = ReactModule;
-                (window as any)['react-dom'] = ReactDOMModule;
+                const ReactModule = await import('react');
+                const ReactDOMModule = await import('react-dom');
+                (window as any).React = ReactModule.default;
                 (window as any).ReactDOM = ReactDOMModule;
             }
 
-            // Execute the UMD extension code directly in the global context
-            // This ensures that the UMD wrapper can access the global dependencies
-            const script = document.createElement('script');
-            script.textContent = extensionCode;
-            document.head.appendChild(script);
+            // Load the federation module
+            const federationModule = await import(/* @vite-ignore */ extensionPath);
 
-            // The UMD code should have set a global variable, let's try to get it
-            const globalName = 'HelloWorldExtension'; // This should match the library name in webpack config
-            const Component = (window as any)[globalName];
+            // Get the Component from the federation module
+            if (federationModule.get && typeof federationModule.get === 'function') {
+                try {
+                    const componentFactory = await federationModule.get('./Component');
+                    const Component = await componentFactory();
 
-            // Clean up the script
-            document.head.removeChild(script);
+                    // Extract static nodeFunction if it exists
+                    if (Component.nodeFunction && typeof Component.nodeFunction === 'function') {
+                        this.extensionFunctions.set(extensionId, Component.nodeFunction);
+                        console.log(`Registered nodeFunction for extension: ${extensionId}`);
 
-            if (Component) {
-                // Extract static nodeFunction if it exists
-                if (Component.nodeFunction && typeof Component.nodeFunction === 'function') {
-                    this.extensionFunctions.set(extensionId, Component.nodeFunction);
-                    console.log(`Registered nodeFunction for extension: ${extensionId}`);
+                        // Call the nodeFunction to get extension info and register it
+                        try {
+                            const extensionInfo = Component.nodeFunction();
+                            console.log(`Extension ${extensionId} info:`, extensionInfo);
 
-                    // Call the nodeFunction to get extension info and register it
-                    try {
-                        const extensionInfo = Component.nodeFunction();
-                        console.log(`Extension ${extensionId} info:`, extensionInfo);
-
-                        // If the extension has an initialize function, call it
-                        if (extensionInfo?.initialize && typeof extensionInfo.initialize === 'function') {
-                            extensionInfo.initialize();
+                            // If the extension has an initialize function, call it
+                            if (extensionInfo?.initialize && typeof extensionInfo.initialize === 'function') {
+                                extensionInfo.initialize();
+                            }
+                        } catch (error) {
+                            console.error(`Error calling nodeFunction for ${extensionId}:`, error);
                         }
-                    } catch (error) {
-                        console.error(`Error calling nodeFunction for ${extensionId}:`, error);
                     }
-                }
 
-                this.loadedComponents.set(extensionId, Component);
-                return Component;
+                    this.loadedComponents.set(extensionId, Component);
+                    return Component;
+                } catch (error) {
+                    console.error(`Failed to get component from federation module ${extensionId}:`, error);
+                    return null;
+                }
             } else {
-                throw new Error('Extension UMD module did not export the expected global variable');
+                throw new Error('Extension module does not export federation get function');
             }
         } catch (error) {
             console.error(`Failed to load extension component ${extensionId}:`, error);
