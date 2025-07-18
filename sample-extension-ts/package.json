@@ -7,6 +7,7 @@
         "build": "vite build",
         "dev": "vite build --watch",
         "bundle": "npm run build && npm run zip",
+        "package": "node scripts/build-and-package.js",
         "zip": "node scripts/bundle.js",
         "clean": "rimraf dist && rimraf *.zip"
     },
