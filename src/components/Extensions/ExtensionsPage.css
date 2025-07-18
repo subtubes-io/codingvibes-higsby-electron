@@ -18,7 +18,10 @@
   font-size: 2.25rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  /* edgar:color-change */
+  background: linear-gradient(135deg,  #4b070b  0%, #292929 100%); 
+  /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+  /* background: linear-gradient(135deg,  #024b47 0%, #292929 100%);  */
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

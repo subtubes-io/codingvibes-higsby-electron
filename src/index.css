@@ -42,6 +42,13 @@
   }
   
   .bg-primary-gradient {
-    background: linear-gradient(135deg,  #4b0243 0%, #292929 100%);
+    /* edgar:color-change */
+    background: linear-gradient(135deg,  #024b47 0%, #292929 100%); 
+
+
+        /* #4b070b */
+        /* #024b47 */
+
+
   }
 }
