@@ -792,9 +792,6 @@ const GraphView: React.FC = () => {
                 isCollapsed={isGraphsSidebarCollapsed}
                 onToggle={handleToggleGraphsSidebar}
                 onLoadGraph={handleLoadGraph}
-                onSaveCurrentGraph={handleSaveCurrentGraph}
-                onSaveAsGraph={handleSaveAsGraph}
-                onNewGraph={handleNewGraph}
                 onUpdateGraphDescription={handleUpdateGraphDescription}
                 currentGraphId={currentGraphId}
                 onUpdateGraphName={handleUpdateGraphName}
@@ -860,6 +857,10 @@ const GraphView: React.FC = () => {
                         onZoomToFit={handleZoomToFit}
                         onImportGraph={handleImportGraph}
                         onExportGraph={handleExportGraph}
+                        onSaveCurrentGraph={handleSaveCurrentGraph}
+                        onSaveAsGraph={handleSaveAsGraph}
+                        onNewGraph={handleNewGraph}
+                        currentGraphId={currentGraphId}
                     />
                 </div>
 

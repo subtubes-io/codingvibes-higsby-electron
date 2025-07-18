@@ -6,9 +6,6 @@ interface GraphsSidebarProps {
     isCollapsed: boolean;
     onToggle: () => void;
     onLoadGraph: (graph: SavedGraph) => void;
-    onSaveCurrentGraph: () => void;
-    onSaveAsGraph?: () => void;
-    onNewGraph?: () => void;
     currentGraphId?: string;
     onUpdateGraphName?: (newName: string) => void;
     onUpdateGraphDescription?: (description: string | undefined) => void;
@@ -18,9 +15,6 @@ const GraphsSidebar: React.FC<GraphsSidebarProps> = ({
     isCollapsed,
     onToggle,
     onLoadGraph,
-    onSaveCurrentGraph,
-    onSaveAsGraph,
-    onNewGraph,
     currentGraphId,
     onUpdateGraphName,
     onUpdateGraphDescription
@@ -183,55 +177,6 @@ const GraphsSidebar: React.FC<GraphsSidebarProps> = ({
 
             {!isCollapsed && (
                 <div className="graphs-sidebar-content">
-                    <div className="graphs-actions">
-                        <button
-                            className="save-graph-btn"
-                            onClick={onSaveCurrentGraph}
-                            title={currentGraphId ? "Save Changes" : "Save Graph"}
-                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                        >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                                <polyline points="17,21 17,13 7,13 7,21"></polyline>
-                                <polyline points="7,3 7,8 15,8"></polyline>
-                            </svg>
-                            {currentGraphId ? 'Save' : 'Save'}
-                        </button>
-                        {onSaveAsGraph && (
-                            <button
-                                className="save-as-graph-btn"
-                                onClick={onSaveAsGraph}
-                                title="Save As New Graph"
-                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                            >
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                                    <polyline points="17,21 17,13 7,13 7,21"></polyline>
-                                    <polyline points="7,3 7,8 15,8"></polyline>
-                                    <line x1="12" y1="9" x2="12" y2="15"></line>
-                                    <line x1="9" y1="12" x2="15" y2="12"></line>
-                                </svg>
-                                Save As
-                            </button>
-                        )}
-                        {onNewGraph && (
-                            <button
-                                className="new-graph-btn"
-                                onClick={onNewGraph}
-                                title="Create New Graph (saves current graph automatically)"
-                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                            >
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                    <polyline points="14,2 14,8 20,8"></polyline>
-                                    <line x1="12" y1="18" x2="12" y2="12"></line>
-                                    <line x1="9" y1="15" x2="15" y2="15"></line>
-                                </svg>
-                                New
-                            </button>
-                        )}
-                    </div>
-
                     <div className="search-container">
                         <input
                             type="text"
