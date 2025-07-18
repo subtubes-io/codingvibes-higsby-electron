@@ -62,36 +62,10 @@ const GraphView: React.FC = () => {
 
     const handlePlay = useCallback(() => {
         setIsPlaying(true);
-
-        // Get all extension functions from the ExtensionService
-        const allExtensionFunctions = getAllExtensionFunctions();
-        const localExtensionFunctions = extensionFunctions;
-
-        console.log('🎬 PLAY BUTTON CLICKED - Extension Functions Map:');
-        console.log('=====================================');
-
-        console.log('Local Extension Functions:', localExtensionFunctions);
-        console.log('ExtensionService Functions:', allExtensionFunctions);
-
-        // Call all available functions and log their results
-        console.log('\n🔧 Calling all extension functions:');
-        Object.entries(localExtensionFunctions).forEach(([extensionId, func]) => {
-            if (typeof func === 'function') {
-                try {
-                    const result = func({ source: 'play-button', timestamp: new Date().toISOString() });
-                    console.log(`✅ ${extensionId}:`, result);
-                } catch (error) {
-                    console.error(`❌ Error calling ${extensionId}:`, error);
-                }
-            }
-        });
-
-        console.log('=====================================');
     }, [extensionFunctions, getAllExtensionFunctions]);
 
     const handlePause = useCallback(() => {
         setIsPlaying(false);
-        console.log('⏸️ PAUSE BUTTON CLICKED - Execution paused');
     }, []);
 
     const handleExportGraph = useCallback(() => {
@@ -225,10 +199,9 @@ const GraphView: React.FC = () => {
     useEffect(() => {
         graphNodes.forEach(node => {
             if (node.plugin && node.plugin.componentName && !loadedExtensions[node.plugin.componentName]) {
-                console.log('🔄 Loading extension for node:', node.name, 'componentName:', node.plugin.componentName);
                 loadExtension(node.plugin);
             } else if (node.plugin && !node.plugin.componentName) {
-                console.error('🚨 Node has plugin but missing componentName:', node.name, node.plugin);
+                console.error('Node has plugin but missing componentName:', node.name, node.plugin);
             }
         });
     }, [graphNodes, loadedExtensions, loadExtension]);
@@ -252,9 +225,8 @@ const GraphView: React.FC = () => {
                         const nodesArray = Object.values(jsonData.nodes).map((node: any) => {
                             // Debug logging for imported nodes
                             if (node.plugin) {
-                                console.log('🔄 Importing node with plugin:', node.name, 'plugin:', node.plugin);
                                 if (!node.plugin.componentName) {
-                                    console.error('🚨 Imported plugin missing componentName:', node.plugin);
+                                    console.error('Imported plugin missing componentName:', node.plugin);
                                 }
                             }
 
@@ -318,29 +290,14 @@ const GraphView: React.FC = () => {
         try {
             // Use componentName as the extension identifier
             const extensionId = plugin.componentName;
-            console.log("extension id ---->", extensionId);
-            console.log("plugin object ---->", plugin);
-
-            console.log(`🔄 Loading extension function for: ${plugin.name} (ID: ${extensionId})`);
-
-            // Debug: Check what extensions are available
-            const availableExtensions = await extensionService.getExtensions();
-            console.log("Available extensions from API:", availableExtensions);
-
-            // First check if ExtensionService can find the extension metadata
-            const metadata = await extensionService.getExtensionMetadata(extensionId);
-            console.log("extension metadata ---->", metadata);
 
             // Load the extension component to trigger function registration
             const component = await extensionService.loadExtensionComponent(extensionId);
-            console.log('this is the component----->', component);
 
             // If ExtensionService fails, try our local loadExtension method as fallback
             let finalComponent = component;
             if (!component) {
-                console.log('🔄 ExtensionService failed, trying local loadExtension method...');
                 finalComponent = await loadExtension(plugin);
-                console.log('Local loadExtension result:', finalComponent);
             }
 
             if (finalComponent) {
@@ -351,12 +308,12 @@ const GraphView: React.FC = () => {
                 // If no function in ExtensionService, try to extract from the component directly
                 const componentWithFunction = finalComponent as any;
                 if (!func && componentWithFunction.nodeFunction && typeof componentWithFunction.nodeFunction === 'function') {
-                    console.log('🔄 Extracting nodeFunction directly from component...');
+
                     func = componentWithFunction.nodeFunction;
                     // Also register it in the ExtensionService for consistency
                     try {
                         (extensionService as any).extensionFunctions.set(extensionId, func);
-                        console.log(`✅ Manually registered function in ExtensionService for: ${extensionId}`);
+
                     } catch (error) {
                         console.warn('Failed to manually register function in ExtensionService:', error);
                     }
@@ -368,21 +325,18 @@ const GraphView: React.FC = () => {
                             ...prev,
                             [extensionId]: func
                         };
-                        console.log("!!!!!!!!!!! --->", typeof func)
-                        func();
-                        console.log(`✅ Added function to map for: ${plugin.name}`);
-                        console.log(`📊 Current function map:`, Object.keys(updated));
+                        // todo:edgar this is where the node function is actually available 
                         return updated;
                     });
-                    console.log(`🎯 Successfully loaded extension function for: ${plugin.name}`);
+                    console.log(`Successfully loaded extension function for: ${plugin.name}`);
                 } else {
-                    console.warn(`⚠️ No nodeFunction found for: ${plugin.name}`);
+                    console.warn(`No nodeFunction found for: ${plugin.name}`);
                 }
             } else {
-                console.warn(`⚠️ Failed to load extension component for: ${plugin.name}`);
+                console.warn(`Failed to load extension component for: ${plugin.name}`);
             }
         } catch (error) {
-            console.error(`❌ Failed to load extension function for ${plugin.name}:`, error);
+            console.error(`Failed to load extension function for ${plugin.name}:`, error);
         }
     }, [extensionService]);
 
@@ -399,7 +353,6 @@ const GraphView: React.FC = () => {
         if (func && typeof func === 'function') {
             try {
                 const result = func(params);
-                console.log(`Function result for node ${nodeId}:`, result);
                 return result;
             } catch (error) {
                 console.error(`Error calling function for node ${nodeId}:`, error);
