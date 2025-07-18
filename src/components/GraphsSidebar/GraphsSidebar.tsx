@@ -132,16 +132,28 @@ const GraphsSidebar: React.FC<GraphsSidebarProps> = ({
                             className="save-graph-btn"
                             onClick={onSaveCurrentGraph}
                             title="Save Current Graph"
+                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                         >
-                            💾 Save Current
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                <polyline points="17,21 17,13 7,13 7,21"></polyline>
+                                <polyline points="7,3 7,8 15,8"></polyline>
+                            </svg>
+                            Save Current
                         </button>
                         <button
                             className="refresh-graphs-btn"
                             onClick={loadSavedGraphs}
                             title="Refresh List"
                             disabled={loading}
+                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                         >
-                            🔄 {loading ? 'Loading...' : 'Refresh'}
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <polyline points="23,4 23,10 17,10"></polyline>
+                                <polyline points="1,20 1,14 7,14"></polyline>
+                                <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                            </svg>
+                            {loading ? 'Loading...' : 'Refresh'}
                         </button>
                     </div>
 
@@ -202,7 +214,9 @@ const GraphsSidebar: React.FC<GraphsSidebarProps> = ({
                                                     }}
                                                     title="Save Name"
                                                 >
-                                                    ✓
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                        <polyline points="20,6 9,17 4,12"></polyline>
+                                                    </svg>
                                                 </button>
                                                 <button
                                                     className="cancel-name-btn"
@@ -212,7 +226,10 @@ const GraphsSidebar: React.FC<GraphsSidebarProps> = ({
                                                     }}
                                                     title="Cancel"
                                                 >
-                                                    ✕
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                                    </svg>
                                                 </button>
                                             </>
                                         ) : (
@@ -222,14 +239,22 @@ const GraphsSidebar: React.FC<GraphsSidebarProps> = ({
                                                     onClick={(e) => handleStartEditName(graph.id, graph.name, e)}
                                                     title="Edit Name"
                                                 >
-                                                    ✏️
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                    </svg>
                                                 </button>
                                                 <button
                                                     className="delete-graph-btn"
                                                     onClick={(e) => handleDeleteGraph(graph.id, e)}
                                                     title="Delete Graph"
                                                 >
-                                                    🗑️
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                        <polyline points="3,6 5,6 21,6"></polyline>
+                                                        <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                                                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                    </svg>
                                                 </button>
                                             </>
                                         )}
