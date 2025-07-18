@@ -1,20 +1,27 @@
 /* GraphNode.css - Graph Node Component Styles */
 
-.graph-node {
+/* Node Wrapper - Container for the node and resize handle */
+.node-wrapper {
   position: absolute;
+  z-index: 10;
+  user-select: none;
+}
+
+.graph-node {
+  position: relative;
   background: white;
   border: 2px solid #e5e7eb;
   border-radius: 12px;
-  min-width: 200px;
-  max-width: 300px;
+  min-width: 180px;
+  min-height: 250px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
   cursor: grab;
-  z-index: 10;
   user-select: none;
   will-change: transform; /* Optimize for animations */
-  height: 400px;
-  overflow-y: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .graph-node:hover {
@@ -26,6 +33,25 @@
 .graph-node.selected {
   border-color: #667eea;
   box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.node-wrapper.resizing {
+  z-index: 1000;
+}
+
+.node-wrapper.resizing .graph-node {
+  transition: none !important;
+  cursor: nw-resize !important;
+}
+
+.node-wrapper.resizing .resize-handle {
+  background: #024b47;
+  transform: scale(1.2);
+}
+
+.graph-node.resizing {
+  transition: none !important;
+  cursor: nw-resize !important;
 }
 
 .graph-node.dragging {
@@ -88,6 +114,9 @@
 /* Node Content */
 .node-content {
   padding: 16px;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .node-plugin-info {
@@ -247,4 +276,45 @@
 
 .output-port:hover {
   background: #f59e0b;
+}
+
+/* Resize Handle */
+.resize-handle {
+  position: absolute;
+  bottom: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  cursor: nw-resize;
+  background: #667eea;
+  border: 2px solid white;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: all 0.2s ease;
+  z-index: 20;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.resize-handle:hover {
+  background: #024b47;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.resize-handle svg {
+  opacity: 0.9;
+  transform: scale(0.8);
+}
+
+.resize-handle:hover svg {
+  opacity: 1;
+  transform: scale(0.9);
+}
+
+/* Prevent resize handle from interfering with node dragging */
+.resize-handle:active {
+  cursor: nw-resize !important;
 }

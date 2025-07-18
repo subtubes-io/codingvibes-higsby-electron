@@ -403,6 +403,10 @@ const GraphView: React.FC = () => {
                 position: {
                     x: offsetX + (col * spacing),
                     y: offsetY + (row * spacing)
+                },
+                size: {
+                    width: 200,
+                    height: 400
                 }
             };
 
@@ -418,6 +422,14 @@ const GraphView: React.FC = () => {
             const filtered = prev.filter(node => node.id !== nodeId);
             return filtered;
         });
+    }, []);
+
+    const handleNodeResize = useCallback((nodeId: string, size: { width: number; height: number }) => {
+        setGraphNodes(prev => prev.map(node =>
+            node.id === nodeId
+                ? { ...node, size }
+                : node
+        ));
     }, []);
 
     // Update node position using requestAnimationFrame for smooth dragging
@@ -608,6 +620,9 @@ const GraphView: React.FC = () => {
                                     onMouseDown={handleMouseDown}
                                     onRemoveNode={removeNodeFromGraph}
                                     onCallFunction={callNodeFunction}
+                                    onNodeResize={handleNodeResize}
+                                    zoom={zoom}
+                                    panOffset={panOffset}
                                 />
                             ))}
                         </div>
