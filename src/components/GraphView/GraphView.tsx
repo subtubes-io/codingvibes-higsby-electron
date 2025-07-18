@@ -103,6 +103,7 @@ const GraphView: React.FC = () => {
                 type: node.type,
                 extension: node.extension,
                 position: node.position,
+                size: node.size, // Include the size in the serialization
                 plugin: node.plugin ? {
                     name: node.plugin.name,
                     version: node.plugin.version,
@@ -234,7 +235,11 @@ const GraphView: React.FC = () => {
                     // Validate the imported data structure
                     if (jsonData.nodes && typeof jsonData.nodes === 'object') {
                         // Convert nodes object back to array format for state
-                        const nodesArray = Object.values(jsonData.nodes);
+                        const nodesArray = Object.values(jsonData.nodes).map((node: any) => ({
+                            ...node,
+                            // Ensure backward compatibility by adding default size if missing
+                            size: node.size || { width: 200, height: 400 }
+                        }));
                         setGraphNodes(nodesArray);
 
                         // Restore view state if available
@@ -622,7 +627,6 @@ const GraphView: React.FC = () => {
                                     onCallFunction={callNodeFunction}
                                     onNodeResize={handleNodeResize}
                                     zoom={zoom}
-                                    panOffset={panOffset}
                                 />
                             ))}
                         </div>

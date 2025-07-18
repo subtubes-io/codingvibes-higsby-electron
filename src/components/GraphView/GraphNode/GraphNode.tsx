@@ -30,7 +30,6 @@ interface GraphNodeProps {
     onCallFunction: (nodeId: string, params: any) => any;
     onNodeResize?: (nodeId: string, size: { width: number; height: number }) => void;
     zoom?: number;
-    panOffset?: { x: number; y: number };
 }
 
 const GraphNode: React.FC<GraphNodeProps> = ({
@@ -41,7 +40,6 @@ const GraphNode: React.FC<GraphNodeProps> = ({
     onRemoveNode,
     onNodeResize,
     zoom = 1,
-    panOffset = { x: 0, y: 0 },
 }) => {
     const [isResizing, setIsResizing] = React.useState(false);
     const [resizeStart, setResizeStart] = React.useState({ x: 0, y: 0, width: 0, height: 0 });
