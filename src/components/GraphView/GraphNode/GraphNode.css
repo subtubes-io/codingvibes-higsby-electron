@@ -13,10 +13,13 @@
   z-index: 10;
   user-select: none;
   will-change: transform; /* Optimize for animations */
+  height: 400px;
+  overflow-y: auto;
 }
 
 .graph-node:hover {
-  border-color: #667eea;
+  border-color: #024b47;
+  /* #667eea; */
   box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
 }
 
@@ -26,9 +29,10 @@
 }
 
 .graph-node.dragging {
-  transform: scale(1.05);
+  transform: scale(1.01);
   box-shadow: 0 12px 32px rgba(102, 126, 234, 0.3);
-  border-color: #667eea;
+  border-color: #024b47;
+   /* #667eea; */
   z-index: 1000;
   cursor: grabbing !important;
   transition: none !important; /* Disable transitions during drag for smooth movement */
@@ -40,7 +44,8 @@
 
 /* Node Header */
 .node-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+    background: linear-gradient(135deg,  #024b47 0%, #012319 100%); 
   color: white;
   padding: 12px 16px;
   border-radius: 10px 10px 0 0;
