@@ -6,6 +6,8 @@ import GraphsSidebar from '../GraphsSidebar/GraphsSidebar';
 import { GraphStorageService, SavedGraph } from '../../services/graphStorageService';
 import GraphNode from './GraphNode';
 import GraphControls from './GraphControls';
+import ToastContainer from '../Toast/ToastContainer';
+import { useToast } from '../../hooks/useToast';
 import './GraphView.css';
 
 // Add interface for extension components
@@ -25,9 +27,15 @@ const GraphView: React.FC = () => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentGraphId, setCurrentGraphId] = useState<string | undefined>();
     const [currentGraphName, setCurrentGraphName] = useState<string>('Untitled Graph');
+    const [currentGraphDescription, setCurrentGraphDescription] = useState<string>('Visual plugin composition and workflow builder');
     const [graphStorageService] = useState(() => new GraphStorageService());
+    const [editingNameValue, setEditingNameValue] = useState('');
+    const [editingDescriptionValue, setEditingDescriptionValue] = useState('');
     const [isEditingTitle, setIsEditingTitle] = useState(false);
-    const [editingTitleValue, setEditingTitleValue] = useState('');
+    const [isEditingDescription, setIsEditingDescription] = useState(false);
+
+    // Toast notifications
+    const { toasts, addToast, removeToast } = useToast();
 
     const [dragState, setDragState] = useState<{
         isDragging: boolean;
@@ -69,79 +77,63 @@ const GraphView: React.FC = () => {
 
     const handleStartEditingTitle = useCallback(() => {
         setIsEditingTitle(true);
-        setEditingTitleValue(currentGraphName);
+        setEditingNameValue(currentGraphName);
     }, [currentGraphName]);
 
+    const handleStartEditingDescription = useCallback(() => {
+        setIsEditingDescription(true);
+        setEditingDescriptionValue(currentGraphDescription);
+    }, [currentGraphDescription]);
+
     const handleSaveTitleEdit = useCallback(async () => {
-        if (!editingTitleValue.trim()) {
-            alert('Graph name cannot be empty');
+        if (!editingNameValue.trim()) {
+            addToast('Graph name cannot be empty', 'error');
             return;
         }
 
-        const newName = editingTitleValue.trim();
+        const newName = editingNameValue.trim();
         setCurrentGraphName(newName);
         setIsEditingTitle(false);
-        setEditingTitleValue('');
+        setEditingNameValue('');
 
-        // Always save the complete graph with the new title
+        // Save to storage
         try {
-            const nodesObject = graphNodes.reduce((acc, node) => {
-                acc[node.id] = {
-                    id: node.id,
-                    name: node.name,
-                    type: node.type,
-                    extension: node.extension,
-                    position: node.position,
-                    size: node.size,
-                    plugin: node.plugin
-                };
-                return acc;
-            }, {} as Record<string, any>);
-
-            // Get existing description if graph is already saved
-            let description = "Visual plugin composition and workflow";
             if (currentGraphId) {
-                try {
-                    const existingGraph = await graphStorageService.getGraph(currentGraphId);
-                    description = existingGraph?.description || "Visual plugin composition and workflow";
-                } catch (error) {
-                    // Use default description if can't get existing
-                }
-            }
-
-            const graphData = {
-                name: newName,
-                description: description,
-                version: "1.0.0",
-                metadata: {
-                    zoom,
-                    panOffset,
-                    nodeCount: graphNodes.length,
-                    createdAt: '', // Will be set by the service
-                    updatedAt: ''  // Will be set by the service
-                },
-                nodes: nodesObject
-            };
-
-            if (currentGraphId) {
-                // Update existing graph with new title and complete data
-                await graphStorageService.updateGraph(currentGraphId, graphData);
-                console.log('Graph updated with new title:', newName);
-            } else {
-                // Create new graph with the title
-                const newId = await graphStorageService.saveGraph(graphData);
-                setCurrentGraphId(newId);
-                console.log('New graph saved with title:', newName);
+                await graphStorageService.updateGraphName(currentGraphId, newName);
+                console.log('Graph title updated:', newName);
             }
         } catch (error) {
-            console.error('Failed to save graph with new title:', error);
-            alert('Failed to save graph with new title');
+            console.error('Failed to save graph title:', error);
+            addToast('Failed to save graph title', 'error');
         }
-    }, [editingTitleValue, currentGraphId, graphStorageService, graphNodes, zoom, panOffset]);
+    }, [editingNameValue, currentGraphId, graphStorageService, addToast]);
+
+    const handleSaveDescriptionEdit = useCallback(async () => {
+        const newDescription = editingDescriptionValue.trim() || 'Visual plugin composition and workflow builder';
+        setCurrentGraphDescription(newDescription);
+        setIsEditingDescription(false);
+        setEditingDescriptionValue('');
+
+        // Save to storage
+        try {
+            if (currentGraphId) {
+                await graphStorageService.updateGraphDescription(currentGraphId, newDescription);
+                console.log('Graph description updated:', newDescription);
+            }
+        } catch (error) {
+            console.error('Failed to save graph description:', error);
+            addToast('Failed to save graph description', 'error');
+        }
+    }, [editingDescriptionValue, currentGraphId, graphStorageService, addToast]);
 
     const handleCancelTitleEdit = useCallback(() => {
         setIsEditingTitle(false);
-        setEditingTitleValue('');
+        setEditingNameValue('');
+    }, []);
+
+    const handleCancelDescriptionEdit = useCallback(() => {
+        setIsEditingDescription(false);
+        setEditingDescriptionValue('');
     }, []);
 
     const handleTitleKeyPress = useCallback((event: React.KeyboardEvent) => {
@@ -151,6 +143,16 @@ const GraphView: React.FC = () => {
             handleCancelTitleEdit();
         }
     }, [handleSaveTitleEdit, handleCancelTitleEdit]);
+
+    const handleDescriptionKeyPress = useCallback((event: React.KeyboardEvent) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            handleSaveDescriptionEdit();
+        } else if (event.key === 'Escape') {
+            handleCancelDescriptionEdit();
+        }
+        // Allow Shift+Enter for new lines in textarea
+    }, [handleSaveDescriptionEdit, handleCancelDescriptionEdit]);
 
     const handleZoomIn = useCallback(() => {
         setZoom(prev => Math.min(prev * 1.2, 3)); // Max zoom 3x
@@ -198,11 +200,13 @@ const GraphView: React.FC = () => {
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
+
+            addToast('Graph exported successfully!', 'success');
         } catch (error) {
             console.error('Failed to export graph:', error);
-            alert('Failed to export graph');
+            addToast('Failed to export graph', 'error');
         }
-    }, [graphNodes, zoom, panOffset, currentGraphName, graphStorageService]);
+    }, [graphNodes, zoom, panOffset, currentGraphName, graphStorageService, addToast]);
 
     // Dynamic extension loader
     const loadExtension = useCallback(async (plugin: ExtensionManifest) => {
@@ -336,21 +340,25 @@ const GraphView: React.FC = () => {
                         // Reset current graph ID since this is an import (new graph)
                         setCurrentGraphId(undefined);
                         setIsEditingTitle(false);
-                        setEditingTitleValue('');
+                        setEditingNameValue('');
+                        setIsEditingDescription(false);
+                        setEditingDescriptionValue('');
+
+                        addToast('Graph imported successfully!', 'success');
 
                     } else {
                         console.error('Invalid graph file format');
-                        alert('Invalid graph file format. Please select a valid graph export file.');
+                        addToast('Invalid graph file format. Please select a valid graph export file.', 'error');
                     }
                 } catch (error) {
                     console.error('Error parsing graph file:', error);
-                    alert('Error reading graph file. Please check the file format.');
+                    addToast('Error reading graph file. Please check the file format.', 'error');
                 }
             };
             reader.readAsText(file);
         };
         input.click();
-    }, []);
+    }, [addToast]);
 
     const handleWheel = useCallback((e: WheelEvent) => {
         e.preventDefault();
@@ -382,35 +390,26 @@ const GraphView: React.FC = () => {
         setZoom(1);
         setPanOffset({ x: 0, y: 0 });
         setIsEditingTitle(false);
-        setEditingTitleValue('');
+        setEditingNameValue('');
+        setIsEditingDescription(false);
+        setEditingDescriptionValue('');
     }, []);
 
-    const handleNewGraph = useCallback(() => {
-        if (graphNodes.length > 0) {
-            const shouldClear = window.confirm('Are you sure you want to create a new graph? Unsaved changes will be lost.');
-            if (!shouldClear) return;
-        }
-        handleClearGraph();
-    }, [graphNodes.length, handleClearGraph]);
+    // const handleNewGraph = useCallback(() => {
+    //     if (graphNodes.length > 0) {
+    //         const shouldClear = window.confirm('Are you sure you want to create a new graph? Unsaved changes will be lost.');
+    //         if (!shouldClear) return;
+    //     }
+    //     handleClearGraph();
+    // }, [graphNodes.length, handleClearGraph]);
 
     const handleSaveCurrentGraph = useCallback(async () => {
         let name = currentGraphName;
-        let description: string | undefined;
+        let description = currentGraphDescription;
 
-        // If it's a new graph (no currentGraphId), prompt for name and description
-        if (!currentGraphId) {
-            const promptedName = prompt('Enter a name for this graph:', currentGraphName);
-            if (!promptedName) return;
-            name = promptedName;
-            description = prompt('Enter a description (optional):') || "Visual plugin composition and workflow";
-        } else {
-            // For existing graphs, try to preserve the existing description
-            try {
-                const existingGraph = await graphStorageService.getGraph(currentGraphId);
-                description = existingGraph?.description || "Visual plugin composition and workflow";
-            } catch (error) {
-                description = "Visual plugin composition and workflow";
-            }
+        // For new graphs, use current name directly (no prompt needed)
+        if (!currentGraphId && !name.trim()) {
+            name = 'Untitled Graph';
         }
 
         try {
@@ -443,20 +442,79 @@ const GraphView: React.FC = () => {
 
             if (currentGraphId) {
                 await graphStorageService.updateGraph(currentGraphId, graphData);
-                // Update the current graph name in case it was changed
                 setCurrentGraphName(name);
-                alert('Graph updated successfully!');
+                addToast('Graph updated successfully!', 'success');
             } else {
                 const newId = await graphStorageService.saveGraph(graphData);
                 setCurrentGraphId(newId);
                 setCurrentGraphName(name);
-                alert('Graph saved successfully!');
+                addToast('Graph saved successfully!', 'success');
             }
+
+            // Trigger refresh of saved graphs list
+            window.dispatchEvent(new CustomEvent('graphSaved'));
         } catch (error) {
             console.error('Failed to save graph:', error);
-            alert('Failed to save graph');
+            addToast('Failed to save graph. Please try again.', 'error');
         }
-    }, [graphNodes, zoom, panOffset, currentGraphId, currentGraphName, graphStorageService]);
+    }, [graphNodes, zoom, panOffset, currentGraphId, currentGraphName, currentGraphDescription, graphStorageService, addToast]);
+
+    const handleSaveAsGraph = useCallback(async () => {
+        // Create a copy with a modified name
+        const copyName = `${currentGraphName} (Copy)`;
+        const description = currentGraphDescription;
+
+        try {
+            const nodesObject = graphNodes.reduce((acc, node) => {
+                acc[node.id] = {
+                    id: node.id,
+                    name: node.name,
+                    type: node.type,
+                    extension: node.extension,
+                    position: node.position,
+                    size: node.size,
+                    plugin: node.plugin
+                };
+                return acc;
+            }, {} as Record<string, any>);
+
+            const graphData = {
+                name: copyName,
+                description,
+                version: "1.0.0",
+                metadata: {
+                    zoom,
+                    panOffset,
+                    nodeCount: graphNodes.length,
+                    createdAt: '', // Will be set by the service
+                    updatedAt: ''  // Will be set by the service
+                },
+                nodes: nodesObject
+            };
+
+            // Always save as new regardless of current ID
+            const newId = await graphStorageService.saveGraph(graphData);
+            setCurrentGraphId(newId);
+            setCurrentGraphName(copyName);
+            addToast(`Graph saved as "${copyName}" successfully!`, 'success');
+
+            // Trigger refresh of saved graphs list
+            window.dispatchEvent(new CustomEvent('graphSaved'));
+        } catch (error) {
+            console.error('Failed to save graph as new:', error);
+            addToast('Failed to save graph copy. Please try again.', 'error');
+        }
+    }, [graphNodes, zoom, panOffset, currentGraphName, currentGraphDescription, graphStorageService, addToast]);
+
+    const handleUpdateGraphDescription = useCallback(async (newDescription: string | undefined) => {
+        try {
+            if (!currentGraphId) return;
+            await graphStorageService.updateGraphDescription(currentGraphId, newDescription || '');
+        } catch (error) {
+            console.error('Failed to update graph description:', error);
+            addToast('Failed to update graph description', 'error');
+        }
+    }, [graphStorageService, currentGraphId, addToast]);
 
     // Load extension functions using ExtensionService
     const loadExtensionFunctions = useCallback(async (plugin: ExtensionManifest) => {
@@ -549,10 +607,13 @@ const GraphView: React.FC = () => {
             setPanOffset(savedGraph.metadata.panOffset);
             setCurrentGraphId(savedGraph.id);
             setCurrentGraphName(savedGraph.name);
+            setCurrentGraphDescription(savedGraph.description || 'Visual plugin composition and workflow builder');
 
-            // Reset title editing state
+            // Reset editing states
             setIsEditingTitle(false);
-            setEditingTitleValue('');
+            setEditingNameValue('');
+            setIsEditingDescription(false);
+            setEditingDescriptionValue('');
 
             // Load extension functions for all nodes
             for (const node of nodesArray) {
@@ -562,9 +623,9 @@ const GraphView: React.FC = () => {
             }
         } catch (error) {
             console.error('Failed to load graph:', error);
-            alert('Failed to load graph');
+            addToast('Failed to load graph', 'error');
         }
-    }, [loadExtensionFunctions]);
+    }, [loadExtensionFunctions, addToast]);
 
     const addPluginToGraph = useCallback((plugin: ExtensionManifest) => {
         setGraphNodes(prev => {
@@ -765,14 +826,18 @@ const GraphView: React.FC = () => {
 
     return (
         <div className="graph-view">
+            {/* Toast notifications */}
+            <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+
             {/* Graphs Sidebar */}
             <GraphsSidebar
                 isCollapsed={isGraphsSidebarCollapsed}
                 onToggle={handleToggleGraphsSidebar}
                 onLoadGraph={handleLoadGraph}
                 onSaveCurrentGraph={handleSaveCurrentGraph}
+                onSaveAsGraph={handleSaveAsGraph}
+                onUpdateGraphDescription={handleUpdateGraphDescription}
                 currentGraphId={currentGraphId}
-                currentGraphName={currentGraphName}
                 onUpdateGraphName={handleUpdateGraphName}
             />
 
@@ -780,63 +845,49 @@ const GraphView: React.FC = () => {
             <div className={`graph-canvas ${isPluginsSidebarCollapsed ? 'plugins-collapsed' : ''} ${isGraphsSidebarCollapsed ? 'graphs-collapsed' : ''}`}>
                 <div className="graph-header">
                     <div className="graph-title-section">
-                        {isEditingTitle ? (
-                            <div className="graph-title-edit-container">
+                        <div className="graph-header-inline">
+                            {isEditingTitle ? (
                                 <input
                                     type="text"
-                                    value={editingTitleValue}
-                                    onChange={(e) => setEditingTitleValue(e.target.value)}
+                                    value={editingNameValue}
+                                    onChange={(e) => setEditingNameValue(e.target.value)}
                                     onKeyDown={handleTitleKeyPress}
                                     onBlur={handleSaveTitleEdit}
-                                    className="graph-title-input"
+                                    className="graph-title-inline-input"
+                                    placeholder="Enter graph name"
                                     autoFocus
                                 />
-                                <div className="graph-title-edit-actions">
-                                    <button
-                                        className="save-title-btn"
-                                        onClick={handleSaveTitleEdit}
-                                        title="Save Title"
-                                    >
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <polyline points="20,6 9,17 4,12"></polyline>
-                                        </svg>
-                                    </button>
-                                    <button
-                                        className="cancel-title-btn"
-                                        onClick={handleCancelTitleEdit}
-                                        title="Cancel"
-                                    >
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="graph-title-display">
+                            ) : (
                                 <h2
-                                    className="graph-title"
-                                    onDoubleClick={handleStartEditingTitle}
-                                    title="Double-click to edit"
+                                    className="graph-title-inline"
+                                    onClick={handleStartEditingTitle}
+                                    title="Click to edit"
                                 >
                                     {currentGraphName}
                                 </h2>
-                                <button
-                                    className="edit-title-btn"
-                                    onClick={handleStartEditingTitle}
-                                    title="Edit Title"
+                            )}
+
+                            {isEditingDescription ? (
+                                <textarea
+                                    value={editingDescriptionValue}
+                                    onChange={(e) => setEditingDescriptionValue(e.target.value)}
+                                    onKeyDown={handleDescriptionKeyPress}
+                                    onBlur={handleSaveDescriptionEdit}
+                                    className="graph-description-inline-input"
+                                    placeholder="Enter description (optional)"
+                                    rows={2}
+                                    autoFocus
+                                />
+                            ) : (
+                                <p
+                                    className="graph-description-inline"
+                                    onClick={handleStartEditingDescription}
+                                    title="Click to edit"
                                 >
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                        )}
-                        <p className="graph-description">
-                            Visual plugin composition and workflow builder
-                        </p>
+                                    {currentGraphDescription}
+                                </p>
+                            )}
+                        </div>
                     </div>
 
                     <GraphControls
@@ -893,3 +944,4 @@ const GraphView: React.FC = () => {
 };
 
 export default GraphView;
+// We also need a button to "create  new", to create a new graph. This saves the current graph and creates a new blank one.  

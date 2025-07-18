@@ -121,7 +121,7 @@ const GraphsSidebar: React.FC<GraphsSidebarProps> = ({
         setEditingDescription('');
     }, []);
 
-    const handleInputKeyPress = useCallback((event: React.KeyboardEvent) => {
+    const handleKeyPress = useCallback((event: React.KeyboardEvent) => {
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
             handleSaveEdit();
@@ -129,13 +129,6 @@ const GraphsSidebar: React.FC<GraphsSidebarProps> = ({
             handleCancelEdit();
         }
     }, [handleSaveEdit, handleCancelEdit]);
-
-    const handleTextareaKeyPress = useCallback((event: React.KeyboardEvent) => {
-        if (event.key === 'Escape') {
-            handleCancelEdit();
-        }
-        // Allow Enter key to create new lines in textarea
-    }, [handleCancelEdit]);
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -251,7 +244,7 @@ const GraphsSidebar: React.FC<GraphsSidebarProps> = ({
                                                 type="text"
                                                 value={editingName}
                                                 onChange={(e) => setEditingName(e.target.value)}
-                                                onKeyDown={handleInputKeyPress}
+                                                onKeyDown={handleKeyPress}
                                                 className="graph-name-input"
                                                 placeholder="Enter graph name"
                                                 autoFocus
@@ -263,7 +256,7 @@ const GraphsSidebar: React.FC<GraphsSidebarProps> = ({
                                                 ref={descriptionEditRef}
                                                 value={editingDescription}
                                                 onChange={(e) => setEditingDescription(e.target.value)}
-                                                onKeyDown={handleTextareaKeyPress}
+                                                onKeyDown={handleKeyPress}
                                                 className="description-textarea"
                                                 placeholder="Enter description (optional)"
                                                 rows={3}
