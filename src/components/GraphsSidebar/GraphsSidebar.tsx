@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { SavedGraph, GraphStorageService } from '../../services/graphStorageService';
 import './GraphsSidebar.css';
 
@@ -7,29 +7,18 @@ interface GraphsSidebarProps {
     onToggle: () => void;
     onLoadGraph: (graph: SavedGraph) => void;
     currentGraphId?: string;
-    onUpdateGraphName?: (newName: string) => void;
-    onUpdateGraphDescription?: (description: string | undefined) => void;
 }
 
 const GraphsSidebar: React.FC<GraphsSidebarProps> = ({
     isCollapsed,
     onToggle,
     onLoadGraph,
-    currentGraphId,
-    onUpdateGraphName,
-    onUpdateGraphDescription
+    currentGraphId
 }) => {
     const [savedGraphs, setSavedGraphs] = useState<SavedGraph[]>([]);
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    // Consolidated edit state for both name and description
-    const [editingGraphId, setEditingGraphId] = useState<string | null>(null);
-    const [editingName, setEditingName] = useState('');
-    const [editingDescription, setEditingDescription] = useState('');
     const [graphStorageService] = useState(() => new GraphStorageService());
-
-    const nameEditRef = useRef<HTMLInputElement>(null);
-    const descriptionEditRef = useRef<HTMLTextAreaElement>(null);
 
     const loadSavedGraphs = useCallback(async () => {
         try {
@@ -74,64 +63,6 @@ const GraphsSidebar: React.FC<GraphsSidebarProps> = ({
             }
         }
     }, [graphStorageService, loadSavedGraphs]);
-
-    const handleStartEdit = useCallback((graph: SavedGraph, event: React.MouseEvent) => {
-        event.stopPropagation();
-        setEditingGraphId(graph.id);
-        setEditingName(graph.name);
-        setEditingDescription(graph.description || '');
-    }, []);
-
-    const handleSaveEdit = useCallback(async () => {
-        if (!editingGraphId || !editingName.trim()) {
-            alert('Graph name cannot be empty');
-            return;
-        }
-
-        try {
-            // Update both name and description
-            await graphStorageService.updateGraphName(editingGraphId, editingName.trim());
-            await graphStorageService.updateGraphDescription(editingGraphId, editingDescription.trim());
-            await loadSavedGraphs();
-
-            // If this is the current graph, update the parent component
-            if (editingGraphId === currentGraphId && onUpdateGraphName) {
-                onUpdateGraphName(editingName.trim());
-            }
-            if (editingGraphId === currentGraphId && onUpdateGraphDescription) {
-                onUpdateGraphDescription(editingDescription.trim() || undefined);
-            }
-
-            setEditingGraphId(null);
-            setEditingName('');
-            setEditingDescription('');
-        } catch (error) {
-            console.error('Failed to update graph:', error);
-            alert('Failed to update graph');
-        }
-    }, [editingGraphId, editingName, editingDescription, graphStorageService, loadSavedGraphs, currentGraphId, onUpdateGraphName, onUpdateGraphDescription]);
-
-    const handleCancelEdit = useCallback(() => {
-        setEditingGraphId(null);
-        setEditingName('');
-        setEditingDescription('');
-    }, []);
-
-    const handleInputKeyPress = useCallback((event: React.KeyboardEvent) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            handleSaveEdit();
-        } else if (event.key === 'Escape') {
-            handleCancelEdit();
-        }
-    }, [handleSaveEdit, handleCancelEdit]);
-
-    const handleTextareaKeyPress = useCallback((event: React.KeyboardEvent) => {
-        if (event.key === 'Escape') {
-            handleCancelEdit();
-        }
-        // Allow Enter key to create new lines in textarea
-    }, [handleCancelEdit]);
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -200,117 +131,38 @@ const GraphsSidebar: React.FC<GraphsSidebarProps> = ({
                             <div
                                 key={graph.id}
                                 className={`graph-item ${currentGraphId === graph.id ? 'active' : ''}`}
-                                onClick={() => editingGraphId !== graph.id && onLoadGraph(graph)}
+                                onClick={() => onLoadGraph(graph)}
                             >
-                                {editingGraphId === graph.id ? (
-                                    <div className="graph-edit-form">
-                                        <div className="graph-name-edit">
-                                            <label>Name:</label>
-                                            <input
-                                                ref={nameEditRef}
-                                                type="text"
-                                                value={editingName}
-                                                onChange={(e) => setEditingName(e.target.value)}
-                                                onKeyDown={handleInputKeyPress}
-                                                className="graph-name-input"
-                                                placeholder="Enter graph name"
-                                                autoFocus
-                                            />
-                                        </div>
-                                        <div className="graph-description-edit">
-                                            <label>Description:</label>
-                                            <textarea
-                                                ref={descriptionEditRef}
-                                                value={editingDescription}
-                                                onChange={(e) => setEditingDescription(e.target.value)}
-                                                onKeyDown={handleTextareaKeyPress}
-                                                className="description-textarea"
-                                                placeholder="Enter description (optional)"
-                                                rows={3}
-                                            />
-                                        </div>
-                                        <div className="edit-actions">
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleSaveEdit();
-                                                }}
-                                                className="save-edit-btn"
-                                                title="Save Changes"
-                                            >
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                    <polyline points="20,6 9,17 4,12"></polyline>
-                                                </svg>
-                                                Save
-                                            </button>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleCancelEdit();
-                                                }}
-                                                className="cancel-edit-btn"
-                                                title="Cancel"
-                                            >
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                                                </svg>
-                                                Cancel
-                                            </button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <div className="graph-item-header">
-                                            <h4
-                                                className="graph-name"
-                                                onDoubleClick={(e) => handleStartEdit(graph, e)}
-                                                title="Double-click to edit"
-                                            >
-                                                {graph.name}
-                                            </h4>
-                                            <div className="graph-item-actions">
-                                                <button
-                                                    className="edit-graph-btn"
-                                                    onClick={(e) => handleStartEdit(graph, e)}
-                                                    title="Edit Graph"
-                                                >
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                                    </svg>
-                                                </button>
-                                                <button
-                                                    className="delete-graph-btn"
-                                                    onClick={(e) => handleDeleteGraph(graph.id, e)}
-                                                    title="Delete Graph"
-                                                >
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                        <polyline points="3,6 5,6 21,6"></polyline>
-                                                        <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
-                                                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                                                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <p
-                                            className="graph-description"
-                                            onDoubleClick={(e) => handleStartEdit(graph, e)}
-                                            title="Double-click to edit"
+                                <div className="graph-item-header">
+                                    <h4 className="graph-name">
+                                        {graph.name}
+                                    </h4>
+                                    <div className="graph-item-actions">
+                                        <button
+                                            className="delete-graph-btn"
+                                            onClick={(e) => handleDeleteGraph(graph.id, e)}
+                                            title="Delete Graph"
                                         >
-                                            {graph.description || <em style={{ opacity: 0.6 }}>Click to add description</em>}
-                                        </p>
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                <polyline points="3,6 5,6 21,6"></polyline>
+                                                <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
 
-                                        <div className="graph-meta">
-                                            <span className="node-count">{graph.metadata.nodeCount} nodes</span>
-                                            <span className="updated-date">
-                                                {formatDate(graph.metadata.updatedAt)}
-                                            </span>
-                                        </div>
-                                    </>
-                                )}
+                                <p className="graph-description">
+                                    {graph.description || <em style={{ opacity: 0.6 }}>No description</em>}
+                                </p>
+
+                                <div className="graph-meta">
+                                    <span className="node-count">{graph.metadata.nodeCount} nodes</span>
+                                    <span className="updated-date">
+                                        {formatDate(graph.metadata.updatedAt)}
+                                    </span>
+                                </div>
                             </div>
                         ))}
                     </div>

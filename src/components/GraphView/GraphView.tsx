@@ -62,19 +62,6 @@ const GraphView: React.FC = () => {
         setIsGraphsSidebarCollapsed(prev => !prev);
     }, []);
 
-    const handleUpdateGraphName = useCallback(async (newName: string) => {
-        setCurrentGraphName(newName);
-
-        // Update the graph title in the header
-        if (currentGraphId) {
-            try {
-                await graphStorageService.updateGraphName(currentGraphId, newName);
-            } catch (error) {
-                console.error('Failed to update graph name in storage:', error);
-            }
-        }
-    }, [currentGraphId, graphStorageService]);
-
     const handleStartEditingTitle = useCallback(() => {
         setIsEditingTitle(true);
         setEditingNameValue(currentGraphName);
@@ -473,16 +460,6 @@ const GraphView: React.FC = () => {
         }
     }, [graphNodes.length, handleSaveCurrentGraph, addToast]);
 
-    const handleUpdateGraphDescription = useCallback(async (newDescription: string | undefined) => {
-        try {
-            if (!currentGraphId) return;
-            await graphStorageService.updateGraphDescription(currentGraphId, newDescription || '');
-        } catch (error) {
-            console.error('Failed to update graph description:', error);
-            addToast('Failed to update graph description', 'error');
-        }
-    }, [graphStorageService, currentGraphId, addToast]);
-
     // Load extension functions using ExtensionService
     const loadExtensionFunctions = useCallback(async (plugin: ExtensionManifest) => {
         try {
@@ -792,9 +769,7 @@ const GraphView: React.FC = () => {
                 isCollapsed={isGraphsSidebarCollapsed}
                 onToggle={handleToggleGraphsSidebar}
                 onLoadGraph={handleLoadGraph}
-                onUpdateGraphDescription={handleUpdateGraphDescription}
                 currentGraphId={currentGraphId}
-                onUpdateGraphName={handleUpdateGraphName}
             />
 
             {/* Main Graph Canvas */}

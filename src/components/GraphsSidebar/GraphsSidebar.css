@@ -211,32 +211,13 @@
     background: var(--hover-bg, rgba(255, 255, 255, 0.1));
 }
 
-.graph-name-input {
-    flex: 1;
-    margin-right: 0.5rem;
-    background: var(--input-bg, #2a2a2a);
-    border: 1px solid var(--primary-color, #007acc);
-    color: var(--text-color, #fff);
-    border-radius: 3px;
-    padding: 0.25rem;
-    font-size: 14px;
-    font-weight: 500;
-}
 
-.graph-name-input:focus {
-    outline: none;
-    border-color: var(--primary-color, #007acc);
-    box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.3);
-}
 
 .graph-item-actions {
     display: flex;
     gap: 0.25rem;
 }
 
-.edit-name-btn,
-.save-name-btn,
-.cancel-name-btn,
 .delete-graph-btn {
     background: none;
     border: none;
@@ -253,22 +234,7 @@
     height: 24px;
 }
 
-.edit-name-btn:hover {
-    opacity: 1;
-    background: var(--secondary-color, #555);
-}
 
-.save-name-btn:hover {
-    opacity: 1;
-    background: var(--success-color, #28a745);
-    color: white;
-}
-
-.cancel-name-btn:hover {
-    opacity: 1;
-    background: var(--secondary-color, #6c757d);
-    color: white;
-}
 
 .delete-graph-btn:hover {
     opacity: 1;
@@ -290,57 +256,7 @@
     background: var(--vscode-list-hoverBackground);
 }
 
-.description-edit {
-    margin: 0 0 0.5rem 0;
-}
 
-.description-textarea {
-    width: 100%;
-    min-height: 60px;
-    padding: 6px;
-    font-size: 11px;
-    background: var(--vscode-input-background);
-    color: var(--vscode-input-foreground);
-    border: 1px solid var(--vscode-input-border);
-    border-radius: 4px;
-    resize: vertical;
-    font-family: inherit;
-    line-height: 1.4;
-    box-sizing: border-box;
-}
-
-.description-textarea:focus {
-    outline: none;
-    border-color: var(--vscode-focusBorder);
-}
-
-.description-edit-actions {
-    display: flex;
-    gap: 4px;
-    margin-top: 4px;
-    justify-content: flex-end;
-}
-
-.description-edit-actions .save-edit-btn,
-.description-edit-actions .cancel-edit-btn {
-    width: 24px;
-    height: 24px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--vscode-button-background);
-    color: var(--vscode-button-foreground);
-    border: 1px solid var(--vscode-button-border);
-    border-radius: 3px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.description-edit-actions .save-edit-btn:hover,
-.description-edit-actions .cancel-edit-btn:hover {
-    background: var(--vscode-button-hoverBackground);
-}
 
 .graph-meta {
     display: flex;
@@ -361,106 +277,6 @@
     font-style: italic;
 }
 
-/* Consolidated Edit Form Styles */
-.graph-edit-form {
-    padding: 12px;
-    background: var(--card-bg, #2a2a2a);
-    border-radius: 6px;
-    border: 2px solid var(--primary-color, #007acc);
-}
 
-.graph-name-edit,
-.graph-description-edit {
-    margin-bottom: 12px;
-}
 
-.graph-name-edit label,
-.graph-description-edit label {
-    display: block;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-color, #fff);
-    margin-bottom: 4px;
-}
 
-.graph-name-edit .graph-name-input {
-    width: 100%;
-    padding: 6px;
-    background: var(--input-bg, #2a2a2a);
-    border: 1px solid var(--border-color, #333);
-    color: var(--text-color, #fff);
-    border-radius: 4px;
-    font-size: 13px;
-    font-weight: 500;
-    box-sizing: border-box;
-}
-
-.graph-name-edit .graph-name-input:focus {
-    outline: none;
-    border-color: var(--primary-color, #007acc);
-    box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.3);
-}
-
-.edit-actions {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-}
-
-.edit-actions .save-edit-btn,
-.edit-actions .cancel-edit-btn {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 12px;
-    font-size: 11px;
-    font-weight: 500;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.edit-actions .save-edit-btn {
-    background: linear-gradient(135deg, #024b47 0%, #292929 100%);
-    color: #ffffff;
-    border: 1px solid #024b47;
-}
-
-.edit-actions .save-edit-btn:hover {
-    background: linear-gradient(135deg, #036b66 0%, #3d3d3d 100%);
-    border-color: #036b66;
-    transform: translateY(-1px);
-}
-
-.edit-actions .cancel-edit-btn {
-    background: var(--secondary-color, #6c757d);
-    color: #ffffff;
-    border: 1px solid var(--secondary-color, #6c757d);
-}
-
-.edit-actions .cancel-edit-btn:hover {
-    background: #5a6268;
-    border-color: #5a6268;
-    transform: translateY(-1px);
-}
-
-.edit-graph-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.25rem;
-    border-radius: 3px;
-    opacity: 0.7;
-    transition: opacity 0.2s, background-color 0.2s;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 24px;
-    height: 24px;
-}
-
-.edit-graph-btn:hover {
-    opacity: 1;
-    background: var(--secondary-color, #555);
-}

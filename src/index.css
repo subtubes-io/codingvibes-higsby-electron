@@ -44,6 +44,7 @@
   .bg-primary-gradient {
     /* edgar:color-change */
     background: linear-gradient(135deg,  #024b47 0%, #292929 100%); 
+    background: linear-gradient(135deg,#013835 0%, #003834  25%,  #003a38 100%); 
 
 
       /* #071a4b */
