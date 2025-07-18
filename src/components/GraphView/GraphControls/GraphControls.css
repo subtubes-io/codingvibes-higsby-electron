@@ -1,0 +1,49 @@
+/* GraphControls.css - Graph Controls Component Styles */
+
+.graph-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.graph-control-button {
+  background: none;
+  border: 1px solid #e5e7eb;
+  color: #666;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+
+.graph-control-button:hover {
+  background: #f8fafc;
+  border-color: #d1d5db;
+  color: #333;
+}
+
+.graph-control-button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+.graph-control-button.active:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.zoom-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  color: #666;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  min-width: 60px;
+}
