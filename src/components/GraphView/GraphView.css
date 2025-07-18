@@ -12,15 +12,25 @@
 /* Main Graph Canvas */
 .graph-canvas {
   flex: 1;
+  margin-left: 300px; /* Space for graphs sidebar */
   margin-right: 280px; /* Space for plugins sidebar */
-  transition: margin-right 0.3s ease;
+  transition: margin-left 0.3s ease, margin-right 0.3s ease;
   display: flex;
   flex-direction: column;
   height: 100%;
   position: relative;
 }
 
+.graph-canvas.graphs-collapsed {
+  margin-left: 50px;
+}
+
 .graph-canvas.plugins-collapsed {
+  margin-right: 70px;
+}
+
+.graph-canvas.graphs-collapsed.plugins-collapsed {
+  margin-left: 50px;
   margin-right: 70px;
 }
 
@@ -39,11 +49,103 @@
   flex: 1;
 }
 
+.graph-title-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 8px;
+}
+
 .graph-title {
   color: #333;
   font-size: 2rem;
   font-weight: 700;
-  margin: 0 0 8px 0;
+  margin: 0;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  min-width: 200px;
+}
+
+.graph-title:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.edit-title-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  opacity: 0.6;
+  transition: opacity 0.2s, background-color 0.2s;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-title-btn:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.graph-title-edit-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 8px;
+}
+
+.graph-title-input {
+  color: #333;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  padding: 0.25rem 0.5rem;
+  border: 2px solid #007acc;
+  border-radius: 4px;
+  background: white;
+  min-width: 200px;
+  flex: 1;
+}
+
+.graph-title-input:focus {
+  outline: none;
+  border-color: #005a9e;
+  box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.2);
+}
+
+.graph-title-edit-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.save-title-btn,
+.cancel-title-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  transition: background-color 0.2s;
+}
+
+.save-title-btn:hover {
+  background-color: #28a745;
+  color: white;
+}
+
+.cancel-title-btn:hover {
+  background-color: #6c757d;
+  color: white;
 }
 
 .graph-description {
