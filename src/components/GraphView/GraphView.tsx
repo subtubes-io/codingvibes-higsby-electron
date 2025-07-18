@@ -105,11 +105,19 @@ const GraphView: React.FC = () => {
                 position: node.position,
                 size: node.size, // Include the size in the serialization
                 plugin: node.plugin ? {
+                    id: node.plugin.id,
                     name: node.plugin.name,
+                    componentName: node.plugin.componentName, // Include componentName for proper extension loading
                     version: node.plugin.version,
                     author: node.plugin.author,
                     description: node.plugin.description,
-                    main: node.plugin.main
+                    main: node.plugin.main,
+                    // Include optional properties if they exist
+                    ...(node.plugin.dependencies && { dependencies: node.plugin.dependencies }),
+                    ...(node.plugin.permissions && { permissions: node.plugin.permissions }),
+                    ...(node.plugin.minAppVersion && { minAppVersion: node.plugin.minAppVersion }),
+                    ...(node.plugin.icon && { icon: node.plugin.icon }),
+                    ...(node.plugin.tags && { tags: node.plugin.tags })
                 } : null
             };
             return acc;
@@ -145,6 +153,12 @@ const GraphView: React.FC = () => {
     const loadExtension = useCallback(async (plugin: ExtensionManifest) => {
         // Use componentName as the key
         const componentKey = plugin.componentName;
+
+        // Debug logging to help track down the undefined issue
+        if (!componentKey) {
+            console.error('🚨 loadExtension called with undefined componentName:', plugin);
+            return null;
+        }
 
         if (loadedExtensions[componentKey]) {
             return loadedExtensions[componentKey];
@@ -210,11 +224,11 @@ const GraphView: React.FC = () => {
     // Load extensions when nodes are added
     useEffect(() => {
         graphNodes.forEach(node => {
-            if (node.plugin && !loadedExtensions[node.plugin.componentName]) {
-
+            if (node.plugin && node.plugin.componentName && !loadedExtensions[node.plugin.componentName]) {
+                console.log('🔄 Loading extension for node:', node.name, 'componentName:', node.plugin.componentName);
                 loadExtension(node.plugin);
-            } else if (node.plugin) {
-                //
+            } else if (node.plugin && !node.plugin.componentName) {
+                console.error('🚨 Node has plugin but missing componentName:', node.name, node.plugin);
             }
         });
     }, [graphNodes, loadedExtensions, loadExtension]);
@@ -235,11 +249,21 @@ const GraphView: React.FC = () => {
                     // Validate the imported data structure
                     if (jsonData.nodes && typeof jsonData.nodes === 'object') {
                         // Convert nodes object back to array format for state
-                        const nodesArray = Object.values(jsonData.nodes).map((node: any) => ({
-                            ...node,
-                            // Ensure backward compatibility by adding default size if missing
-                            size: node.size || { width: 200, height: 400 }
-                        }));
+                        const nodesArray = Object.values(jsonData.nodes).map((node: any) => {
+                            // Debug logging for imported nodes
+                            if (node.plugin) {
+                                console.log('🔄 Importing node with plugin:', node.name, 'plugin:', node.plugin);
+                                if (!node.plugin.componentName) {
+                                    console.error('🚨 Imported plugin missing componentName:', node.plugin);
+                                }
+                            }
+
+                            return {
+                                ...node,
+                                // Ensure backward compatibility by adding default size if missing
+                                size: node.size || { width: 200, height: 400 }
+                            };
+                        });
                         setGraphNodes(nodesArray);
 
                         // Restore view state if available
@@ -404,7 +428,11 @@ const GraphView: React.FC = () => {
                 name: plugin.name,
                 type: 'plugin',
                 extension: plugin.name.toLowerCase().replace(/\s+/g, '-'), // Extension identifier // todo:#edgar  this should be the component name
-                plugin: plugin,
+                plugin: {
+                    ...plugin,
+                    // Ensure componentName is set - fallback to generated name if missing
+                    componentName: plugin.componentName || plugin.name.toLowerCase().replace(/\s+/g, '-')
+                },
                 position: {
                     x: offsetX + (col * spacing),
                     y: offsetY + (row * spacing)
