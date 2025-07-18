@@ -24,7 +24,7 @@
 .plugins-sidebar-header {
   /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
   /* edgar:color-change */
-   background: linear-gradient(135deg,  #071a4b  0%, #292929 100%); 
+   background: linear-gradient(135deg,  #071a4b  0%, #1c1c1c 100%); 
   padding: 15px 20px;
   border-bottom: 1px solid #333;
   display: flex;
