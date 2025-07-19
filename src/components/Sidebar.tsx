@@ -13,6 +13,7 @@ interface SidebarProps {
     activeItem: string;
     onItemClick: (itemId: string) => void;
     onToggleSidebar: () => void;
+    title?: string;
 }
 
 const menuItems: MenuItem[] = [
@@ -117,7 +118,7 @@ const menuItems: MenuItem[] = [
     // },
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, activeItem, onItemClick, onToggleSidebar }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, activeItem, onItemClick, title = "Higsby" }) => {
     return (
         <aside className={`fixed top-15 left-0 bottom-0 bg-gray-900 border-r border-gray-700 py-5 overflow-y-auto transition-all duration-300 z-40 ${isCollapsed ? 'w-18' : 'w-70'
             } md:block ${isCollapsed ? '' : 'md:w-70'}`}>
@@ -125,27 +126,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, activeItem, onItemClick,
                 <div className="mb-8">
 
                     <div className="flex items-center px-5 mb-6">
-                        <div className="text-gray-400 mr-3">
 
-                            <button
-                                className="webkit-app-region-no-drag bg-transparent border-none text-white cursor-pointer p-2 rounded-md flex items-center justify-center transition-colors duration-200 hover:bg-white/10"
-                                onClick={onToggleSidebar}
-                                aria-label="Toggle sidebar"
-                            >
-                                <svg width="20" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                                    <line x1="3" y1="12" x2="21" y2="12"></line>
-                                    <line x1="3" y1="18" x2="21" y2="18"></line>
-                                </svg>
-                            </button>
-                        </div>
                         {!isCollapsed && (
-                            <span className="text-gray-400 font-semibold tracking-wider flex items-center gap-1">
-                                PNW
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="white" className="mx-1">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                                </svg>
-                            </span>
+                            <h1 className="text-white text-xl font-semibold m-0 tracking-wider">{title}</h1>
+                            // <span className="text-gray-400 font-semibold tracking-wider flex items-center gap-1">
+                            //     PNW
+                            //     <svg width="16" height="16" viewBox="0 0 24 24" fill="white" className="mx-1">
+                            //         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                            //     </svg>
+                            // </span>
                         )}
                     </div>
 
