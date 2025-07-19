@@ -8,6 +8,8 @@ import GraphNode from './GraphNode';
 import GraphControls from './GraphControls';
 import ToastContainer from '../Toast/ToastContainer';
 import { useToast } from '../../hooks/useToast';
+import DebugConsole from './DebugConsole';
+import loggingService from '../../services/LoggingService';
 import './GraphView.css';
 
 // Add interface for extension components
@@ -142,14 +144,23 @@ const GraphView: React.FC = () => {
     }, [handleSaveDescriptionEdit, handleCancelDescriptionEdit]);
 
     const handleZoomIn = useCallback(() => {
-        setZoom(prev => Math.min(prev * 1.2, 3)); // Max zoom 3x
+        setZoom(prev => {
+            const newZoom = Math.min(prev * 1.2, 3);
+            loggingService.debug('Zoom in', { from: prev, to: newZoom });
+            return newZoom;
+        });
     }, []);
 
     const handleZoomOut = useCallback(() => {
-        setZoom(prev => Math.max(prev / 1.2, 0.2)); // Min zoom 0.2x
+        setZoom(prev => {
+            const newZoom = Math.max(prev / 1.2, 0.2);
+            loggingService.debug('Zoom out', { from: prev, to: newZoom });
+            return newZoom;
+        });
     }, []);
 
     const handleZoomToFit = useCallback(() => {
+        loggingService.info('Reset zoom and pan to fit');
         setZoom(1);
         setPanOffset({ x: 0, y: 0 });
     }, []);
@@ -160,10 +171,15 @@ const GraphView: React.FC = () => {
     }, [extensionService]);
 
     const handlePlay = useCallback(() => {
+        loggingService.info('Starting graph execution', {
+            nodeCount: graphNodes.length,
+            graphName: currentGraphName
+        });
         setIsPlaying(true);
-    }, [extensionFunctions, getAllExtensionFunctions]);
+    }, [extensionFunctions, getAllExtensionFunctions, graphNodes.length, currentGraphName]);
 
     const handlePause = useCallback(() => {
+        loggingService.info('Pausing graph execution');
         setIsPlaying(false);
     }, []);
 
@@ -309,6 +325,11 @@ const GraphView: React.FC = () => {
     }, []);
 
     const handleClearGraph = useCallback(() => {
+        loggingService.info('Clearing graph', {
+            previousNodeCount: graphNodes.length,
+            currentGraphId
+        });
+
         setGraphNodes([]);
         setCurrentGraphId(undefined);
         setCurrentGraphName('Untitled Graph');
@@ -319,7 +340,7 @@ const GraphView: React.FC = () => {
         setEditingNameValue('');
         setIsEditingDescription(false);
         setEditingDescriptionValue('');
-    }, []);
+    }, [graphNodes.length, currentGraphId]);
 
     // const handleNewGraph = useCallback(() => {
     //     if (graphNodes.length > 0) {
@@ -563,6 +584,11 @@ const GraphView: React.FC = () => {
     }, [loadExtensionFunctions, addToast]);
 
     const addPluginToGraph = useCallback((plugin: ExtensionManifest) => {
+        loggingService.info('Adding plugin to graph', {
+            pluginName: plugin.name,
+            componentName: plugin.componentName
+        });
+
         setGraphNodes(prev => {
 
             const existingNodeCount = prev.length;
@@ -593,6 +619,12 @@ const GraphView: React.FC = () => {
                     height: 400
                 }
             };
+
+            loggingService.debug('Created new node', {
+                nodeId: newNode.id,
+                position: newNode.position,
+                totalNodes: prev.length + 1
+            });
 
             return [...prev, newNode];
         });
@@ -759,6 +791,20 @@ const GraphView: React.FC = () => {
         };
     }, []);
 
+    // Initialize logging
+    useEffect(() => {
+        loggingService.info('GraphView component mounted');
+        loggingService.debug('Initial state', {
+            graphNodes: graphNodes.length,
+            zoom,
+            panOffset
+        });
+
+        return () => {
+            loggingService.info('GraphView component unmounted');
+        };
+    }, []);
+
     return (
         <div className="graph-view">
             {/* Toast notifications */}
@@ -874,6 +920,9 @@ const GraphView: React.FC = () => {
                 onToggle={handleTogglePluginsSidebar}
                 onAddToGraph={handleAddToGraph}
             />
+
+            {/* Debug Console */}
+            <DebugConsole />
         </div>
     );
 };

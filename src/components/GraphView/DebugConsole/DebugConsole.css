@@ -1,0 +1,160 @@
+/* Debug Console Styles */
+.debug-console {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #1a1a1a;
+  border-top: 1px solid #333;
+  z-index: 1001;
+  transition: transform 0.3s ease;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.debug-console.collapsed {
+  transform: translateY(calc(100% - 40px));
+}
+
+.debug-console-header {
+  background: #2d2d2d;
+  border-bottom: 1px solid #404040;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 40px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.debug-console-title {
+  color: #e0e0e0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.debug-console-title svg {
+  flex-shrink: 0;
+}
+
+.debug-console-toggle {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  transition: transform 0.3s ease;
+  margin-left: auto;
+}
+
+.debug-console.collapsed .debug-console-toggle {
+  transform: rotate(180deg);
+}
+
+.debug-console-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.debug-console-btn {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.debug-console-btn:hover {
+  background: #404040;
+  color: #e0e0e0;
+}
+
+.debug-console-btn svg {
+  flex-shrink: 0;
+}
+
+.debug-console-content {
+  height: 200px;
+  background: #1a1a1a;
+  overflow-y: auto;
+  padding: 8px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.debug-console-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.debug-console-content::-webkit-scrollbar-track {
+  background: #2d2d2d;
+}
+
+.debug-console-content::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+.debug-console-content::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+.debug-log-entry {
+  margin-bottom: 2px;
+  padding: 2px 0;
+  border-left: 2px solid transparent;
+  padding-left: 8px;
+}
+
+.debug-log-entry.debug {
+  color: #64b5f6;
+  border-left-color: #64b5f6;
+}
+
+.debug-log-entry.info {
+  color: #81c784;
+  border-left-color: #81c784;
+}
+
+.debug-log-entry.error {
+  color: #e57373;
+  border-left-color: #e57373;
+}
+
+.debug-log-entry.default {
+  color: #e0e0e0;
+  border-left-color: #666;
+}
+
+.debug-log-timestamp {
+  color: #9ca3af;
+  margin-right: 8px;
+}
+
+.debug-log-type {
+  font-weight: 600;
+  margin-right: 8px;
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+}
+
+.debug-log-message {
+  word-wrap: break-word;
+}
+
+/* Adjust graph view when console is expanded */
+.graph-view.debug-console-expanded {
+  height: calc(100vh - 60px - 240px); /* Subtract console height */
+}
+
+.debug-console-expanded .graph-canvas {
+  height: calc(100% - 240px);
+}
