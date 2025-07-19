@@ -67,21 +67,6 @@ const PluginsSidebar: React.FC<PluginsSidebarProps> = ({
         }
     };
 
-    const getStatusIcon = (status: string) => {
-        switch (status) {
-            case 'enabled':
-                return '✓';
-            case 'installed':
-                return '●';
-            case 'disabled':
-                return '○';
-            case 'error':
-                return '⚠';
-            default:
-                return '●';
-        }
-    };
-
     // Mock status for now since the service doesn't return it yet
     const getPluginStatus = (plugin: ExtensionManifest) => {
         return (plugin as any).status || 'installed';
@@ -166,17 +151,18 @@ const PluginsSidebar: React.FC<PluginsSidebarProps> = ({
                                 <div
                                     key={pluginId}
                                     className="plugin-item"
-                                    onClick={() => onAddToGraph(plugin)}
-                                    title={isCollapsed ? `${plugin.name} - ${pluginStatus}` : `Click to add ${plugin.name} to graph`}
+                                    title={isCollapsed ? `${plugin.name}` : undefined}
                                 >
-                                    <div className="plugin-status-indicator">
-                                        <span
-                                            className="status-icon"
-                                            style={{ color: getStatusColor(pluginStatus) }}
-                                        >
-                                            {getStatusIcon(pluginStatus)}
-                                        </span>
-                                    </div>
+                                    {isCollapsed && (
+                                        <div className="plugin-icon">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                <circle cx="9" cy="9" r="2"></circle>
+                                                <path d="M21 15.5c-.62-.33-1.3-.5-2-.5s-1.38.17-2 .5"></path>
+                                                <path d="M3 15.5c.62-.33 1.3-.5 2-.5s1.38.17 2 .5"></path>
+                                            </svg>
+                                        </div>
+                                    )}
 
                                     {!isCollapsed && (
                                         <div className="plugin-info">
@@ -195,20 +181,21 @@ const PluginsSidebar: React.FC<PluginsSidebarProps> = ({
                                                     {plugin.description}
                                                 </div>
                                             )}
-                                        </div>
-                                    )}
-
-                                    {isCollapsed && (
-                                        <div className="plugin-tooltip">
-                                            <div className="tooltip-content">
-                                                <div className="tooltip-name">{plugin.name}</div>
-                                                <div className="tooltip-version">v{plugin.version}</div>
-                                                <div
-                                                    className="tooltip-status"
-                                                    style={{ color: getStatusColor(pluginStatus) }}
+                                            <div className="plugin-actions">
+                                                <button
+                                                    className="add-plugin-btn"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onAddToGraph(plugin);
+                                                    }}
+                                                    title={`Add ${plugin.name} to graph`}
                                                 >
-                                                    {pluginStatus}
-                                                </div>
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                                    </svg>
+                                                    <span>Add</span>
+                                                </button>
                                             </div>
                                         </div>
                                     )}

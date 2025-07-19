@@ -188,7 +188,6 @@
   align-items: center;
   padding: 12px 20px;
   color: #999;
-  cursor: pointer;
   transition: all 0.2s ease;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   position: relative;
@@ -283,73 +282,17 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
-/* Tooltip for Collapsed State */
-.plugin-tooltip {
-  display: none;
-}
-
-.plugins-sidebar.collapsed .plugin-item:hover .plugin-tooltip {
-  display: block;
-  position: absolute;
-  left: -200px; /* Position to the left since sidebar is on right */
-  top: 50%;
-  transform: translateY(-50%);
-  background: #333;
-  color: white;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  white-space: nowrap;
-  z-index: 1000;
-  animation: tooltipFadeIn 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  min-width: 160px;
-}
-
-.plugins-sidebar.collapsed .plugin-item:hover .plugin-tooltip::after {
-  content: '';
-  position: absolute;
-  right: -6px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 0;
-  height: 0;
-  border: 6px solid transparent;
-  border-left-color: #333;
-}
-
-.tooltip-content {
+/* Plugin Icon for Collapsed State */
+.plugin-icon {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  transition: color 0.2s ease;
 }
 
-.tooltip-name {
-  font-weight: 600;
+.plugin-item:hover .plugin-icon {
   color: white;
-}
-
-.tooltip-version {
-  font-size: 0.8rem;
-  color: #ccc;
-}
-
-.tooltip-status {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-@keyframes tooltipFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-50%) translateX(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(-50%) translateX(0);
-  }
 }
 
 /* Footer */
@@ -573,4 +516,44 @@
 .preview-close-button:hover {
   background: #4b5563;
   color: white;
+}
+
+/* Plugin Actions */
+.plugin-actions {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  justify-content: flex-start;
+}
+
+.add-plugin-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.add-plugin-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.add-plugin-btn svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 2.5;
+}
+
+.add-plugin-btn span {
+  font-size: 0.75rem;
 }
