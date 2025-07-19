@@ -51,6 +51,17 @@ const GraphView: React.FC = () => {
         offset: { x: 0, y: 0 }
     });
 
+    // Canvas panning state
+    const [canvasPanState, setCanvasPanState] = useState<{
+        isPanning: boolean;
+        startPosition: { x: number; y: number };
+        startPanOffset: { x: number; y: number };
+    }>({
+        isPanning: false,
+        startPosition: { x: 0, y: 0 },
+        startPanOffset: { x: 0, y: 0 }
+    });
+
     // Refs for smooth animation
     const animationFrameRef = useRef<number | null>(null);
     const mousePositionRef = useRef({ x: 0, y: 0 });
@@ -762,6 +773,77 @@ const GraphView: React.FC = () => {
         });
     }, [graphNodes, zoom, panOffset.x, panOffset.y]);
 
+    // Canvas panning handlers
+    const handleCanvasMouseDown = useCallback((e: React.MouseEvent) => {
+        // Only start panning if clicking on empty space (not on a node)
+        if (e.target === e.currentTarget || (e.target as HTMLElement).classList.contains('graph-content') || (e.target as HTMLElement).classList.contains('graph-nodes')) {
+            e.preventDefault();
+
+            const graphWorkspace = graphWorkspaceRef.current;
+            if (!graphWorkspace) return;
+
+            const workspaceRect = graphWorkspace.getBoundingClientRect();
+            const mouseX = e.clientX - workspaceRect.left;
+            const mouseY = e.clientY - workspaceRect.top;
+
+            setCanvasPanState({
+                isPanning: true,
+                startPosition: { x: mouseX, y: mouseY },
+                startPanOffset: { x: panOffset.x, y: panOffset.y }
+            });
+
+            // Change cursor to grabbing
+            document.body.style.cursor = 'grabbing';
+        }
+    }, [panOffset.x, panOffset.y]);
+
+    const handleCanvasMouseMove = useCallback((e: MouseEvent) => {
+        if (!canvasPanState.isPanning) return;
+
+        const graphWorkspace = graphWorkspaceRef.current;
+        if (!graphWorkspace) return;
+
+        const workspaceRect = graphWorkspace.getBoundingClientRect();
+        const mouseX = e.clientX - workspaceRect.left;
+        const mouseY = e.clientY - workspaceRect.top;
+
+        // Calculate the pan delta
+        const deltaX = mouseX - canvasPanState.startPosition.x;
+        const deltaY = mouseY - canvasPanState.startPosition.y;
+
+        // Update pan offset
+        setPanOffset({
+            x: canvasPanState.startPanOffset.x + deltaX,
+            y: canvasPanState.startPanOffset.y + deltaY
+        });
+    }, [canvasPanState.isPanning, canvasPanState.startPosition.x, canvasPanState.startPosition.y, canvasPanState.startPanOffset.x, canvasPanState.startPanOffset.y]);
+
+    const handleCanvasMouseUp = useCallback(() => {
+        if (canvasPanState.isPanning) {
+            setCanvasPanState({
+                isPanning: false,
+                startPosition: { x: 0, y: 0 },
+                startPanOffset: { x: 0, y: 0 }
+            });
+
+            // Reset cursor
+            document.body.style.cursor = '';
+        }
+    }, [canvasPanState.isPanning]);
+
+    // Add global mouse event listeners for canvas panning
+    useEffect(() => {
+        if (canvasPanState.isPanning) {
+            document.addEventListener('mousemove', handleCanvasMouseMove);
+            document.addEventListener('mouseup', handleCanvasMouseUp);
+
+            return () => {
+                document.removeEventListener('mousemove', handleCanvasMouseMove);
+                document.removeEventListener('mouseup', handleCanvasMouseUp);
+            };
+        }
+    }, [canvasPanState.isPanning, handleCanvasMouseMove, handleCanvasMouseUp]);
+
     // Start animation when dragging begins
     useEffect(() => {
         if (dragState.isDragging && dragState.nodeId && !animationFrameRef.current) {
@@ -929,13 +1011,13 @@ const GraphView: React.FC = () => {
                     />
                 </div>
 
-                <div className="graph-workspace" ref={graphWorkspaceRef}>
+                <div className="graph-workspace" ref={graphWorkspaceRef} onMouseDown={handleCanvasMouseDown}>
                     <div
                         className="graph-content"
                         style={{
                             transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
                             transformOrigin: '0 0',
-                            transition: dragState.isDragging ? 'none' : 'transform 0.1s ease-out'
+                            transition: dragState.isDragging || canvasPanState.isPanning ? 'none' : 'transform 0.1s ease-out'
                         }}
                     >
                         <div className="graph-nodes">

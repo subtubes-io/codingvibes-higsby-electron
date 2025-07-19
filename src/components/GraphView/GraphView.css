@@ -263,6 +263,11 @@
     radial-gradient(circle at 1px 1px, rgba(0,0,0,0.1) 1px, transparent 0);
   background-size: 20px 20px;
   background-color: #fafafa;
+  cursor: grab; /* Indicate the canvas is draggable */
+}
+
+.graph-workspace:active {
+  cursor: grabbing; /* Show grabbing cursor when actively dragging */
 }
 
 /* Graph Content - Virtual Canvas */
