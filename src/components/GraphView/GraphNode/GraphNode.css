@@ -245,7 +245,7 @@
 
 .input-ports {
   position: absolute;
-  left: -160px; /* Extended significantly further out for maximum visibility */
+  left: -130px; /* Extended significantly further out for maximum visibility */
   top: 50%;
   transform: translateY(-50%);
   display: flex;
@@ -255,7 +255,7 @@
 
 .output-ports {
   position: absolute;
-  right: -160px; /* Extended significantly further out for maximum visibility */
+  right: -130px; /* Extended significantly further out for maximum visibility */
   top: 50%;
   transform: translateY(-50%);
   display: flex;
@@ -326,6 +326,16 @@
   font-weight: 700;
   margin-left: 2px;
   font-size: 12px;
+  text-shadow: 0 0 2px rgba(239, 68, 68, 0.3);
+}
+
+/* Required port styling */
+.port.required {
+  position: relative;
+}
+
+.port.required .port-label {
+  background: linear-gradient(135deg, rgba(254, 242, 242, 0.95) 0%, rgba(255, 255, 255, 0.95) 100%);
 }
 
 .port-type {
@@ -345,6 +355,7 @@
 
 .input-port .port-label {
   order: 2;
+  width: 100px;
 }
 
 .input-port .port-type {
@@ -357,6 +368,7 @@
 
 .output-port .port-label {
   order: 2;
+  width: 100px;
 }
 
 .output-port .port-type {

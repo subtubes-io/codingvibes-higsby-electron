@@ -165,7 +165,7 @@ const GraphNode: React.FC<GraphNodeProps> = ({
                             {node.plugin.ports.inputs.map((portDef, index) => (
                                 <div
                                     key={`input-${index}`}
-                                    className="port input-port"
+                                    className={`port input-port${portDef.required ? ' required' : ''}`}
                                     style={{
                                         color: NodeService.getPortColor(portDef.category)
                                     }}
@@ -176,7 +176,6 @@ const GraphNode: React.FC<GraphNodeProps> = ({
                                         {portDef.name}
                                         {portDef.required && <span className="port-required">*</span>}
                                     </span>
-                                    <span className="port-type">{portDef.category}</span>
                                 </div>
                             ))}
                         </div>
@@ -188,13 +187,12 @@ const GraphNode: React.FC<GraphNodeProps> = ({
                             {node.plugin.ports.outputs.map((portDef, index) => (
                                 <div
                                     key={`output-${index}`}
-                                    className="port output-port"
+                                    className={`port output-port${portDef.required ? ' required' : ''}`}
                                     style={{
                                         color: NodeService.getPortColor(portDef.category)
                                     }}
                                     title={`${portDef.name} (${portDef.category})${portDef.description ? `: ${portDef.description}` : ''}${portDef.required ? ' - Required' : ''}`}
                                 >
-                                    <span className="port-type">{portDef.category}</span>
                                     <span className="port-label">
                                         {portDef.name}
                                         {portDef.required && <span className="port-required">*</span>}
