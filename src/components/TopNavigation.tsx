@@ -1,5 +1,5 @@
 import React from 'react';
-import higsbyLogo from '../assets/higsby-logo.svg';
+import higsbyLogo from '../assets/higsby-logo-3.svg';
 
 interface TopNavigationProps {
     onToggleSidebar?: () => void;

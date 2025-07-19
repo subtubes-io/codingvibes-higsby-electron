@@ -86,25 +86,6 @@
     flex-wrap: wrap;
 }
 
-.save-graph-btn,
-.save-as-graph-btn,
-.new-graph-btn,
-.refresh-graphs-btn {
-    flex: 1;
-    min-width: 0;
-    padding: 6px 12px;
-    background: linear-gradient(135deg, #024b47 0%, #292929 100%);
-    color: #ffffff;
-    border: 1px solid #024b47;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 500;
-    transition: all 0.2s;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
 
 .search-container {
     padding: 1rem;
@@ -154,8 +135,10 @@
 .graph-item.active,.graph-item:hover {
     /* background: var(--primary-color, #007acc);
     border-color: var(--primary-color, #007acc); */
-     background: linear-gradient(135deg,  #024b47 0%, #292929 100%); 
-      border-color: linear-gradient(135deg,  #024b47 0%, #292929 100%); 
+     /* background: linear-gradient(135deg,  #024b47 0%, #292929 100%);  */
+     background: linear-gradient(135deg,  #071a4b  0%, #1c1c1c 100%); 
+     border-color: linear-gradient(135deg,  #071a4b  0%, #1c1c1c 100%);
+      /* linear-gradient(135deg,  #024b47 0%, #292929 100%);  */
 }
 
 .graph-item.active .node-count {
