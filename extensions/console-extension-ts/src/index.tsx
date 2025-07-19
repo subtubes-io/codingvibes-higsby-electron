@@ -119,7 +119,7 @@ const ConsoleExtension: ConsoleExtensionComponent = () => {
 
         const levelColors: Record<string, string> = {
             info: '#3b82f6',
-            warn: '#f59e0b', 
+            warn: '#f59e0b',
             error: '#ef4444',
             debug: '#6b7280'
         };
