@@ -1,11 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import loggingService, { LogEntry } from '../../../services/LoggingService';
+import { GraphStorageService } from '../../../services/graphStorageService';
 import './DebugConsole.css';
 
-const DebugConsole: React.FC = () => {
+interface DebugConsoleProps {
+  graphNodes?: any[];
+  zoom?: number;
+  panOffset?: { x: number; y: number };
+  currentGraphName?: string;
+}
+
+const DebugConsole: React.FC<DebugConsoleProps> = ({
+  graphNodes = [],
+  zoom = 1,
+  panOffset = { x: 0, y: 0 },
+  currentGraphName = 'Untitled Graph'
+}) => {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const consoleContentRef = useRef<HTMLDivElement>(null);
+  const [graphStorageService] = useState(() => new GraphStorageService());
 
   useEffect(() => {
     // Subscribe to logging service
@@ -39,10 +53,102 @@ const DebugConsole: React.FC = () => {
     e.stopPropagation();
     try {
       const text = loggingService.getLogsAsText();
-      await navigator.clipboard.writeText(text);
-      loggingService.info('Logs copied to clipboard');
+
+      // Check if we're in an Electron environment and use electron's clipboard if available
+      if (window.electronAPI && window.electronAPI.clipboard) {
+        await window.electronAPI.clipboard.writeText(text);
+        loggingService.info('Logs copied to clipboard (via Electron)');
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
+        // Try modern clipboard API
+        await navigator.clipboard.writeText(text);
+        loggingService.info('Logs copied to clipboard');
+      } else {
+        // Fallback to legacy method
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+
+        if (successful) {
+          loggingService.info('Logs copied to clipboard (fallback method)');
+        } else {
+          throw new Error('Copy command failed');
+        }
+      }
     } catch (err) {
       loggingService.error('Failed to copy logs to clipboard', err);
+
+      // Additional fallback - show the text in a dialog/alert
+      const text = loggingService.getLogsAsText();
+      if (text.length > 0) {
+        loggingService.info('Copy failed. Logs content:', text);
+      }
+    }
+  };
+
+  const handleLogGraphState = async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
+    e.stopPropagation();
+    try {
+      const graphStateJson = await graphStorageService.exportCurrentGraph(
+        graphNodes,
+        zoom,
+        panOffset,
+        currentGraphName
+      );
+
+      // Parse the JSON to ensure it's valid and get the object
+      const graphState = JSON.parse(graphStateJson);
+
+      // Log a header for the graph state
+      loggingService.info('📊 === GRAPH STATE EXPORT ===');
+
+      // Log metadata first
+      loggingService.info('Graph Metadata:', {
+        name: graphState.metadata?.name || currentGraphName,
+        description: graphState.metadata?.description,
+        version: graphState.version,
+        exportedAt: graphState.metadata?.exportedAt,
+        zoom: graphState.metadata?.zoom || zoom,
+        panOffset: graphState.metadata?.panOffset || panOffset,
+        nodeCount: Object.keys(graphState.nodes || {}).length
+      });
+
+      // Log each node individually for better readability
+      if (graphState.nodes && Object.keys(graphState.nodes).length > 0) {
+        loggingService.info('Graph Nodes:');
+        Object.values(graphState.nodes).forEach((node: any, index: number) => {
+          loggingService.info(`Node ${index + 1}: ${node.name || 'Unnamed'}`, {
+            id: node.id,
+            type: node.type,
+            extension: node.extension,
+            position: node.position,
+            size: node.size,
+            plugin: node.plugin ? {
+              name: node.plugin.name,
+              componentName: node.plugin.componentName,
+              version: node.plugin.version,
+              author: node.plugin.author
+            } : null
+          });
+        });
+      } else {
+        loggingService.info('Graph Nodes: No nodes in current graph');
+      }
+
+      // Log the complete formatted JSON for reference
+      loggingService.debug('Complete Graph JSON:', JSON.stringify(graphState, null, 2));
+
+      loggingService.info('=== END GRAPH STATE ===');
+
+    } catch (err) {
+      loggingService.error('Failed to log graph state', err);
     }
   };
 
@@ -76,6 +182,20 @@ const DebugConsole: React.FC = () => {
           <span className="debug-console-toggle">▲</span>
         </h3>
         <div className="debug-console-actions">
+          <button
+            className="debug-console-btn"
+            onClick={handleLogGraphState}
+            title="Log current graph state to console"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14,2 14,8 20,8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10,9 9,9 8,9"></polyline>
+            </svg>
+            Log Graph
+          </button>
           <button
             className="debug-console-btn"
             onClick={handleCopy}

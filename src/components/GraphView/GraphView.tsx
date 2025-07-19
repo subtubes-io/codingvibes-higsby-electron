@@ -922,7 +922,12 @@ const GraphView: React.FC = () => {
             />
 
             {/* Debug Console */}
-            <DebugConsole />
+            <DebugConsole
+                graphNodes={graphNodes}
+                zoom={zoom}
+                panOffset={panOffset}
+                currentGraphName={currentGraphName}
+            />
         </div>
     );
 };

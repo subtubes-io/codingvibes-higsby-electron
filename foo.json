@@ -1,0 +1,40 @@
+{
+    "version": "1.0.0",
+    "metadata": {
+        "name": "Untitled Graph",
+        "description": "Visual plugin composition and workflow",
+        "exportedAt": "2025-07-19T03:00:58.892Z",
+        "zoom": 1,
+        "panOffset": {
+            "x": 0,
+            "y": 1
+        }
+    },
+    "nodes": {
+        "387e103e-d43f-4254-9287-d1090f39a16e": {
+            "id": "387e103e-d43f-4254-9287-d1090f39a16e",
+            "name": "Hello World TypeScript Extension",
+            "type": "plugin",
+            "extension": "hello-world-typescript-extension",
+            "position": {
+                "x": 351,
+                "y": 97
+            },
+            "size": {
+                "width": 200,
+                "height": 400
+            },
+            "plugin": {
+                "id": "HelloWorldExtension",
+                "name": "Hello World TypeScript Extension",
+                "componentName": "HelloWorldExtension",
+                "version": "1.0.0",
+                "author": "CodingVibes",
+                "description": "A simple hello world extension demonstrating TypeScript React components",
+                "main": "index.js",
+                "minAppVersion": "1.0.0",
+                "tags": []
+            }
+        }
+    }
+}
