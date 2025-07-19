@@ -160,7 +160,7 @@
 }
 
 .graph-description {
-  color: #6b7280;
+  color: #c3c3c3;
   font-size: 1rem;
   line-height: 1.5;
   margin: 0;
@@ -170,11 +170,6 @@
   transition: background-color 0.2s;
   flex: 1;
   min-height: 1.5rem;
-}
-
-.graph-description:hover {
-  background-color: #f3f4f6;
-  padding: 0.25rem 0.5rem;
 }
 
 .edit-description-btn {
@@ -258,11 +253,6 @@
   color: white;
 }
 
-.graph-description {
-  color: #666;
-  font-size: 1.1rem;
-  margin: 0;
-}
 
 /* Graph Workspace */
 .graph-workspace {
