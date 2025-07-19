@@ -681,6 +681,58 @@ The zip should contain these essential files:
 3. **Validation**: Real-time form validation
 4. **Responsive Design**: Support different screen sizes
 
+### Extension Styling Guidelines
+
+Extensions should follow a simple, clean, and effective styling approach that integrates well with the graph node environment:
+
+#### Color Scheme
+- **Text Color**: Use `#1f2937` (dark gray) for primary text - ensures excellent readability
+- **Background**: Extensions inherit the node's white background - no need for custom backgrounds
+- **Borders**: Use subtle borders like `1px solid #e5e7eb` for form elements
+- **Input Backgrounds**: Use `#ffffff` (white) for input fields
+
+#### Typography
+- **Font Family**: Use system fonts: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`
+- **Label Weight**: Use `font-weight: 600` for labels to create hierarchy
+- **Font Sizes**: Keep labels around `1.1rem`, inputs at `1rem`, and small text at `0.85rem`
+
+#### Form Elements
+- **Inputs/Textareas**: Clean styling with `padding: 0.75rem`, `border-radius: 8px`
+- **Borders**: Use `#d1d5db` for input borders - subtle but defined
+- **Spacing**: Use consistent spacing with `margin-bottom: 1.5rem` between form groups
+- **Interactive Elements**: Ensure sliders, dropdowns, and inputs have proper cursor styles
+
+#### Layout Principles
+- **Padding**: Use generous padding (`2rem`) for the main container
+- **Spacing**: Consistent spacing between elements creates visual rhythm
+- **Simplicity**: Avoid complex gradients, shadows, or animations within nodes
+- **Accessibility**: Ensure sufficient color contrast and focus states
+
+#### Example Implementation
+```css
+const containerStyle = {
+    padding: '2rem',
+    color: '#1f2937',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+};
+
+const inputStyle = {
+    width: '100%',
+    padding: '0.75rem',
+    borderRadius: '8px',
+    border: '1px solid #d1d5db',
+    background: '#ffffff',
+    color: '#1f2937',
+    fontSize: '1rem'
+};
+```
+
+#### Why This Approach Works
+- **Integration**: Simple styling integrates seamlessly with the graph node design
+- **Readability**: High contrast text ensures content is always legible
+- **Consistency**: Uniform styling across extensions creates a cohesive user experience
+- **Performance**: Minimal CSS reduces bundle size and rendering complexity
+
 ### Documentation
 
 1. **README.md**: Document your extension thoroughly
@@ -696,22 +748,66 @@ The zip should contain these essential files:
 const SimpleFormExtension: SimpleFormExtensionComponent = () => {
     const [formData, setFormData] = (useState as any)({ name: '', email: '' });
     
+    // Clean, simple styling following best practices
+    const containerStyle = {
+        padding: '2rem',
+        color: '#1f2937',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    };
+    
+    const inputStyle = {
+        width: '100%',
+        padding: '0.75rem',
+        marginBottom: '1rem',
+        borderRadius: '8px',
+        border: '1px solid #d1d5db',
+        background: '#ffffff',
+        color: '#1f2937',
+        fontSize: '1rem',
+        boxSizing: 'border-box'
+    };
+    
+    const labelStyle = {
+        display: 'block',
+        marginBottom: '0.5rem',
+        fontSize: '1.1rem',
+        fontWeight: '600'
+    };
+    
     return (
-        <div style={{ padding: '20px' }}>
-            <h2>Simple Form</h2>
-            <input 
-                type="text" 
-                placeholder="Name"
-                value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
-            />
-            <input 
-                type="email" 
-                placeholder="Email"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-            />
-            <button onClick={() => console.log(formData)}>
+        <div style={containerStyle}>
+            <div style={{ marginBottom: '1.5rem' }}>
+                <label style={labelStyle}>Name:</label>
+                <input 
+                    type="text" 
+                    placeholder="Enter your name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    style={inputStyle}
+                />
+            </div>
+            <div style={{ marginBottom: '1.5rem' }}>
+                <label style={labelStyle}>Email:</label>
+                <input 
+                    type="email" 
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    style={inputStyle}
+                />
+            </div>
+            <button 
+                onClick={() => console.log(formData)}
+                style={{
+                    padding: '0.75rem 1.5rem',
+                    backgroundColor: '#3b82f6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '1rem'
+                }}
+            >
                 Submit
             </button>
         </div>
@@ -726,6 +822,24 @@ const APIExtension: APIExtensionComponent = () => {
     const [data, setData] = (useState as any)(null);
     const [loading, setLoading] = (useState as any)(false);
     
+    // Consistent styling approach
+    const containerStyle = {
+        padding: '2rem',
+        color: '#1f2937',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    };
+    
+    const buttonStyle = {
+        padding: '0.75rem 1.5rem',
+        backgroundColor: loading ? '#9ca3af' : '#10b981',
+        color: 'white',
+        border: 'none',
+        borderRadius: '8px',
+        cursor: loading ? 'not-allowed' : 'pointer',
+        fontSize: '1rem',
+        marginBottom: '1rem'
+    };
+    
     const fetchData = async () => {
         setLoading(true);
         try {
@@ -739,11 +853,23 @@ const APIExtension: APIExtensionComponent = () => {
     };
     
     return (
-        <div>
-            <button onClick={fetchData} disabled={loading}>
+        <div style={containerStyle}>
+            <button onClick={fetchData} disabled={loading} style={buttonStyle}>
                 {loading ? 'Loading...' : 'Fetch Data'}
             </button>
-            {data && <pre>{JSON.stringify(data, null, 2)}</pre>}
+            {data && (
+                <pre style={{
+                    background: '#f9fafb',
+                    padding: '1rem',
+                    borderRadius: '8px',
+                    border: '1px solid #e5e7eb',
+                    fontSize: '0.875rem',
+                    overflow: 'auto',
+                    maxHeight: '200px'
+                }}>
+                    {JSON.stringify(data, null, 2)}
+                </pre>
+            )}
         </div>
     );
 };
