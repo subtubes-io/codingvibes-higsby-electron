@@ -9,7 +9,8 @@
         "bundle": "npm run build && npm run zip",
         "package": "node scripts/build-and-package.js",
         "zip": "node scripts/bundle.js",
-        "clean": "rimraf dist && rimraf *.zip"
+        "clean": "rimraf dist && rimraf *.zip",
+        "dev-install": "node scripts/dev-install.js"
     },
     "keywords": [
         "extension",
@@ -27,6 +28,8 @@
         "@types/react-dom": "^18.2.17",
         "@vitejs/plugin-react": "^4.0.0",
         "archiver": "^6.0.1",
+        "form-data": "^4.0.4",
+        "node-fetch": "^2.7.0",
         "rimraf": "^5.0.0",
         "typescript": "^5.0.0",
         "vite": "^4.0.0"
