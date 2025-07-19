@@ -20,5 +20,39 @@
     "category": "utility",
     "language": "typescript",
     "framework": "react",
-    "minAppVersion": "1.0.0"
+    "minAppVersion": "1.0.0",
+    "dimensions": {
+        "width": 500,
+        "height": 350
+    },
+    "ports": {
+        "inputs": [
+            {
+                "name": "message",
+                "category": "string",
+                "description": "Text message to log to console",
+                "required": true
+            },
+            {
+                "name": "level",
+                "category": "string",
+                "description": "Log level (info, warn, error, debug)",
+                "required": false
+            },
+            {
+                "name": "data",
+                "category": "JSON",
+                "description": "Additional data to display",
+                "required": false
+            }
+        ],
+        "outputs": [
+            {
+                "name": "logged",
+                "category": "boolean",
+                "description": "Whether the message was successfully logged",
+                "required": false
+            }
+        ]
+    }
 }

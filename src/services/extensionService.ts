@@ -4,35 +4,22 @@
  */
 
 import React from 'react';
-import { ExtensionUploadResult, PortDefinition } from '../types/extension';
+import { ExtensionUploadResult, PortDefinition, ExtensionManifest } from '../types/extension';
 
-export interface ExtensionManifest {
+// Extended interface for service-specific properties
+export interface ServiceExtensionManifest extends ExtensionManifest {
     id: string;
-    name: string;
-    componentName: string;
-    description: string;
-    author: string;
-    version: string;
-    main: string;
     url: string;
     file: string;
-    tags?: string[];
-    minAppVersion?: string;
-    icon?: string;
     installedAt: string;
     updatedAt: string;
     status: 'installed' | 'enabled' | 'disabled' | 'error';
     errorMessage?: string;
-    /** Port configuration for the extension */
-    ports?: {
-        inputs?: PortDefinition[];
-        outputs?: PortDefinition[];
-    };
 }
 
 export class ExtensionService {
     private baseUrl: string;
-    private cache: Map<string, ExtensionManifest> = new Map();
+    private cache: Map<string, ServiceExtensionManifest> = new Map();
     private loadedComponents: Map<string, React.ComponentType<any>> = new Map();
     private extensionFunctions: Map<string, any> = new Map(); // Store static functions
 

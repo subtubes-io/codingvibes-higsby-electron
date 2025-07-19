@@ -11,6 +11,7 @@ export interface PortDefinition {
     name: string;
     category: PortCategory;
     description?: string;
+    required?: boolean; // Default: false
 }
 
 export interface PortInstance {
@@ -46,6 +47,11 @@ export interface ExtensionManifest {
     icon?: string;
     /** Extension tags/categories */
     tags?: string[];
+    /** Default dimensions for the node when first added */
+    dimensions?: {
+        width: number;
+        height: number;
+    };
     /** Port configuration for the extension */
     ports?: {
         inputs?: PortDefinition[];

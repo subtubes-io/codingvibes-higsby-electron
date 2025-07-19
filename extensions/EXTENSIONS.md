@@ -170,29 +170,37 @@ This file contains metadata about your extension:
     "language": "typescript",
     "framework": "react",
     "minAppVersion": "1.0.0",
+    "dimensions": {
+        "width": 400,
+        "height": 300
+    },
     "ports": {
         "inputs": [
             {
                 "name": "input",
                 "category": "string",
-                "description": "Text input for processing"
+                "description": "Text input for processing",
+                "required": true
             },
             {
                 "name": "config",
                 "category": "JSON",
-                "description": "Configuration parameters"
+                "description": "Configuration parameters",
+                "required": false
             }
         ],
         "outputs": [
             {
                 "name": "result",
                 "category": "string",
-                "description": "Processed output"
+                "description": "Processed output",
+                "required": false
             },
             {
                 "name": "metadata",
                 "category": "JSON",
-                "description": "Processing metadata"
+                "description": "Processing metadata",
+                "required": false
             }
         ]
     }
@@ -203,7 +211,37 @@ This file contains metadata about your extension:
 - `componentName`: Must match your React component export name
 - `permissions`: List permissions needed (`network`, `environment`, etc.)
 - `category`: Helps with organization (`ai`, `utility`, `data`, etc.)
+- `dimensions`: Default node size when added to canvas (width and height in pixels)
 - `ports`: Defines input and output ports for graph connections (optional)
+  - Each port can have a `required` property (boolean, defaults to false)
+  - Required ports are visually indicated with a red asterisk (*) in the UI
+  - Port categories include: `string`, `number`, `boolean`, `JSON`
+
+#### Node Dimensions
+
+The `dimensions` property sets the default size when your extension is first added to the canvas:
+
+```json
+{
+    "dimensions": {
+        "width": 400,    // Width in pixels
+        "height": 300    // Height in pixels
+    }
+}
+```
+
+**Guidelines:**
+- **Small Extensions**: 300x250 for simple forms or displays
+- **Medium Extensions**: 400x300 for standard configuration panels
+- **Large Extensions**: 500x350+ for complex interfaces with multiple sections
+- **Content-Specific**: Consider your extension's content when choosing dimensions
+- **User Resizing**: Users can always resize nodes after adding them to the canvas
+
+**Examples by Category:**
+- **AI/Chat Extensions**: 400x300 (good for form inputs and response areas)
+- **Console/Logging**: 500x350 (larger for scrollable content)
+- **Simple Utilities**: 300x250 (compact for basic controls)
+- **Data Visualization**: 600x400+ (space for charts and graphs)
 
 ### tsconfig.json
 
@@ -420,34 +458,40 @@ Add port definitions to your `manifest.json`:
             {
                 "name": "prompt",
                 "category": "string",
-                "description": "The input prompt for processing"
+                "description": "The input prompt for processing",
+                "required": true
             },
             {
                 "name": "temperature",
                 "category": "number",
-                "description": "Temperature setting (0.0 - 1.0)"
+                "description": "Temperature setting (0.0 - 1.0)",
+                "required": false
             },
             {
                 "name": "enabled",
                 "category": "boolean",
-                "description": "Whether processing is enabled"
+                "description": "Whether processing is enabled",
+                "required": false
             },
             {
                 "name": "options",
                 "category": "JSON",
-                "description": "Additional configuration options"
+                "description": "Additional configuration options",
+                "required": false
             }
         ],
         "outputs": [
             {
                 "name": "response",
                 "category": "string", 
-                "description": "Generated response text"
+                "description": "Generated response text",
+                "required": false
             },
             {
                 "name": "metadata",
                 "category": "JSON",
-                "description": "Response metadata and statistics"
+                "description": "Response metadata and statistics",
+                "required": false
             }
         ]
     }
@@ -522,6 +566,10 @@ The port system integrates with graph serialization:
 3. **Clear Descriptions**: Provide helpful descriptions for complex ports
 4. **Logical Grouping**: Group related inputs and outputs logically
 5. **Minimal Ports**: Only expose ports that are truly needed for connections
+6. **Required Ports**: Mark essential ports as `required: true` to guide users
+   - Use sparingly - only for ports absolutely necessary for functionality
+   - Required ports display with a red asterisk (*) in the UI
+   - Default is `required: false` for backward compatibility
 
 ### Example: ChatGPT Extension Ports
 
@@ -532,34 +580,40 @@ The port system integrates with graph serialization:
             {
                 "name": "prompt",
                 "category": "string",
-                "description": "Text prompt for ChatGPT"
+                "description": "Text prompt for ChatGPT",
+                "required": true
             },
             {
                 "name": "systemMessage",
                 "category": "string", 
-                "description": "System message to set context"
+                "description": "System message to set context",
+                "required": false
             },
             {
                 "name": "temperature",
                 "category": "number",
-                "description": "Response creativity (0.0-1.0)"
+                "description": "Response creativity (0.0-1.0)",
+                "required": false
             },
             {
                 "name": "config",
                 "category": "JSON",
-                "description": "Additional API parameters"
+                "description": "Additional API parameters",
+                "required": false
             }
         ],
         "outputs": [
             {
                 "name": "response",
                 "category": "string",
-                "description": "ChatGPT response text"
+                "description": "ChatGPT response text",
+                "required": false
             },
             {
                 "name": "usage",
                 "category": "JSON",
-                "description": "Token usage statistics"
+                "description": "Token usage statistics",
+                "required": false
             }
         ]
     }

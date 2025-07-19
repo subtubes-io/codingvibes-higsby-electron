@@ -321,6 +321,13 @@
   flex-shrink: 0; /* Prevent label from shrinking */
 }
 
+.port-required {
+  color: #ef4444;
+  font-weight: 700;
+  margin-left: 2px;
+  font-size: 12px;
+}
+
 .port-type {
   font-size: 9px; /* Normalized smaller size */
   font-weight: 500;

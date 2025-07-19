@@ -523,6 +523,21 @@ interface ExtensionManifest {
   license?: string;                // License type
   dependencies?: Record<string, string>; // External dependencies
   peerDependencies?: Record<string, string>; // Peer dependencies
+  dimensions?: {                   // Default node dimensions
+    width: number;                 // Default width in pixels
+    height: number;                // Default height in pixels
+  };
+  ports?: {                        // Port configuration
+    inputs?: PortDefinition[];     // Input port definitions
+    outputs?: PortDefinition[];    // Output port definitions
+  };
+}
+
+interface PortDefinition {
+  name: string;                    // Port name identifier
+  category: 'string' | 'number' | 'boolean' | 'JSON'; // Data type
+  description?: string;            // Port description
+  required?: boolean;              // Whether port is required (default: false)
 }
 ```
 

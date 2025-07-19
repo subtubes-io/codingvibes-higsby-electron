@@ -25,16 +25,22 @@ export interface ExtensionManifest {
     updatedAt: string;
     status: 'installed' | 'enabled' | 'disabled' | 'error';
     errorMessage?: string;
+    dimensions?: {
+        width: number;
+        height: number;
+    };
     ports?: {
         inputs?: Array<{
             name: string;
             category: 'string' | 'number' | 'boolean' | 'JSON';
             description?: string;
+            required?: boolean;
         }>;
         outputs?: Array<{
             name: string;
             category: 'string' | 'number' | 'boolean' | 'JSON';
             description?: string;
+            required?: boolean;
         }>;
     };
 }
@@ -161,6 +167,7 @@ export class ExtensionService {
                         installedAt: manifestStats.birthtime.toISOString(),
                         updatedAt: manifestStats.mtime.toISOString(),
                         status: 'installed',
+                        dimensions: manifest.dimensions, // Include dimensions from manifest
                         ports: manifest.ports // Include port configuration from manifest
                     };
 

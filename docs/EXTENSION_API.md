@@ -77,6 +77,14 @@ interface ExtensionManifest {
   category?: string;                      // Extension category for organization
   icon?: string;                          // Base64 encoded icon or URL
   screenshots?: string[];                 // Screenshot URLs or base64 images
+  dimensions?: {                          // Default node dimensions when added
+    width: number;                        // Default width in pixels
+    height: number;                       // Default height in pixels
+  };
+  ports?: {                               // Port configuration for graph connections
+    inputs?: PortDefinition[];            // Input port definitions
+    outputs?: PortDefinition[];           // Output port definitions
+  };
   
   // Technical metadata
   minHostVersion?: string;                // Minimum required host version
@@ -93,6 +101,13 @@ interface JSONSchema {
   properties?: Record<string, any>;
   required?: string[];
   [key: string]: any;
+}
+
+interface PortDefinition {
+  name: string;                          // Unique port identifier
+  category: 'string' | 'number' | 'boolean' | 'JSON'; // Data type category
+  description?: string;                  // Human-readable description
+  required?: boolean;                    // Whether connection is required (default: false)
 }
 ```
 

@@ -670,10 +670,20 @@ const GraphView: React.FC = () => {
                     y: offsetY + (row * spacing)
                 },
                 size: {
-                    width: 200,
-                    height: 400
+                    width: plugin.dimensions?.width || 300,  // Use manifest dimensions or fallback to defaults
+                    height: plugin.dimensions?.height || 200
                 }
             };
+
+            // Debug log to verify dimensions are being read correctly
+            console.log('Plugin dimensions debug:', {
+                pluginName: plugin.name,
+                manifestDimensions: plugin.dimensions,
+                finalSize: {
+                    width: plugin.dimensions?.width || 300,
+                    height: plugin.dimensions?.height || 200
+                }
+            });
 
             loggingService.debug('Created new node', {
                 nodeId: newNode.id,

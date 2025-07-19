@@ -1,36 +1,61 @@
 {
     "version": "1.0.0",
     "metadata": {
-        "name": "Untitled Graph",
+        "name": "Chatgpt",
         "description": "Visual plugin composition and workflow",
-        "exportedAt": "2025-07-19T03:00:58.892Z",
-        "zoom": 1,
+        "exportedAt": "2025-07-19T07:17:33.755Z",
+        "zoom": 0.9460060842623977,
         "panOffset": {
-            "x": 0,
-            "y": 1
+            "x": -1037,
+            "y": -97
         }
     },
     "nodes": {
-        "387e103e-d43f-4254-9287-d1090f39a16e": {
-            "id": "387e103e-d43f-4254-9287-d1090f39a16e",
-            "name": "Hello World TypeScript Extension",
+        "ae93ca0c-5276-44df-9e95-67896420b025": {
+            "id": "ae93ca0c-5276-44df-9e95-67896420b025",
+            "name": "ChatGPT Configuration Extension",
             "type": "plugin",
-            "extension": "hello-world-typescript-extension",
+            "extension": "chatgpt-configuration-extension",
             "position": {
-                "x": 351,
-                "y": 97
+                "x": 2239.1048313263104,
+                "y": 0
             },
             "size": {
-                "width": 200,
-                "height": 400
+                "width": 586,
+                "height": 830
             },
             "plugin": {
-                "id": "HelloWorldExtension",
-                "name": "Hello World TypeScript Extension",
-                "componentName": "HelloWorldExtension",
+                "id": "ChatGPTExtension",
+                "name": "ChatGPT Configuration Extension",
+                "componentName": "ChatGPTExtension",
                 "version": "1.0.0",
                 "author": "CodingVibes",
-                "description": "A simple hello world extension demonstrating TypeScript React components",
+                "description": "A comprehensive ChatGPT configuration and API extension with form controls and environment-based API integration",
+                "main": "index.js",
+                "minAppVersion": "1.0.0",
+                "tags": []
+            }
+        },
+        "63604f12-a32b-494e-973d-64ff33fcc148": {
+            "id": "63604f12-a32b-494e-973d-64ff33fcc148",
+            "name": "Console Output Extension",
+            "type": "plugin",
+            "extension": "console-output-extension",
+            "position": {
+                "x": 1493.9296325266532,
+                "y": 0
+            },
+            "size": {
+                "width": 548.0966019153967,
+                "height": 557.2659609222733
+            },
+            "plugin": {
+                "id": "ConsoleExtension",
+                "name": "Console Output Extension",
+                "componentName": "ConsoleExtension",
+                "version": "1.0.0",
+                "author": "CodingVibes",
+                "description": "A clean console extension for displaying logs, debugging information, and system messages with timestamps",
                 "main": "index.js",
                 "minAppVersion": "1.0.0",
                 "tags": []
