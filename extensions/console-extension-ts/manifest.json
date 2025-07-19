@@ -1,0 +1,24 @@
+{
+    "name": "Console Output Extension",
+    "version": "1.0.0",
+    "componentName": "ConsoleExtension",
+    "description": "A clean console extension for displaying logs, debugging information, and system messages with timestamps",
+    "author": "CodingVibes",
+    "main": "index.js",
+    "permissions": [
+        "console"
+    ],
+    "keywords": [
+        "console",
+        "debug",
+        "logs",
+        "output",
+        "system",
+        "typescript",
+        "react"
+    ],
+    "category": "utility",
+    "language": "typescript",
+    "framework": "react",
+    "minAppVersion": "1.0.0"
+}

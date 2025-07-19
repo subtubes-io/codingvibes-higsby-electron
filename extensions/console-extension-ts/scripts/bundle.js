@@ -1,0 +1,68 @@
+const archiver = require('archiver');
+const fs = require('fs');
+const path = require('path');
+
+async function createExtensionZip() {
+  const outputPath = path.join(__dirname, '../console-extension-ts.zip');
+  const distPath = path.join(__dirname, '../dist');
+  const manifestPath = path.join(__dirname, '../manifest.json');
+
+  // Check required files
+  if (!fs.existsSync(distPath)) {
+    console.error('❌ Dist folder not found. Run "npm run build" first.');
+    process.exit(1);
+  }
+
+  if (!fs.existsSync(manifestPath)) {
+    console.error('❌ manifest.json not found.');
+    process.exit(1);
+  }
+
+  // Remove existing zip
+  if (fs.existsSync(outputPath)) {
+    fs.unlinkSync(outputPath);
+  }
+
+  const output = fs.createWriteStream(outputPath);
+  const archive = archiver('zip', { zlib: { level: 9 } });
+
+  return new Promise((resolve, reject) => {
+    output.on('close', () => {
+      const sizeInKB = (archive.pointer() / 1024).toFixed(2);
+      console.log(`✅ Extension bundled successfully!`);
+      console.log(`📦 File: ${path.basename(outputPath)}`);
+      console.log(`📏 Size: ${sizeInKB} KB`);
+      console.log(`📁 Location: ${outputPath}`);
+      resolve();
+    });
+
+    archive.on('error', (err) => {
+      console.error('❌ Error creating zip:', err);
+      reject(err);
+    });
+
+    // Pipe archive data to the file
+    archive.pipe(output);
+
+    // Add manifest.json
+    archive.file(manifestPath, { name: 'manifest.json' });
+
+    // Add all files from dist folder (for federation modules)
+    const distFiles = fs.readdirSync(distPath);
+    for (const file of distFiles) {
+      const filePath = path.join(distPath, file);
+      const stat = fs.statSync(filePath);
+      
+      // Only add files, not directories
+      if (stat.isFile()) {
+        archive.file(filePath, { name: file });
+        console.log(`📄 Adding: ${file}`);
+      }
+    }
+
+    // Finalize the archive
+    archive.finalize();
+  });
+}
+
+createExtensionZip().catch(console.error);

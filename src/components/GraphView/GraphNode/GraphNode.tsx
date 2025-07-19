@@ -108,11 +108,15 @@ const GraphNode: React.FC<GraphNodeProps> = ({
                 style={{
                     width: '100%',
                     height: '100%',
-                    cursor: 'grab'
                 }}
-                onMouseDown={(e) => onMouseDown(e, node.id)}
             >
-                <div className="node-header">
+                <div
+                    className="node-header"
+                    style={{
+                        cursor: 'grab'
+                    }}
+                    onMouseDown={(e) => onMouseDown(e, node.id)}
+                >
                     <div className="node-icon">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                             <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>

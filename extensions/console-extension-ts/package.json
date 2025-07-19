@@ -1,0 +1,38 @@
+{
+    "name": "console-extension-ts",
+    "version": "1.0.0",
+    "description": "A simple console extension for displaying logs and debugging information",
+    "main": "dist/index.js",
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite build --watch",
+        "bundle": "npm run build && npm run zip",
+        "package": "node scripts/build-and-package.js",
+        "zip": "node scripts/bundle.js",
+        "clean": "rimraf dist && rimraf *.zip"
+    },
+    "keywords": [
+        "extension",
+        "react",
+        "typescript",
+        "console",
+        "debugging",
+        "logs"
+    ],
+    "author": "CodingVibes",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/react": "^18.2.43",
+        "@types/react-dom": "^18.2.17",
+        "@vitejs/plugin-react": "^4.0.0",
+        "@originjs/vite-plugin-federation": "^1.3.5",
+        "typescript": "^5.0.0",
+        "vite": "^4.0.0",
+        "archiver": "^6.0.1",
+        "rimraf": "^5.0.0"
+    },
+    "peerDependencies": {
+        "react": "^18.0.0",
+        "react-dom": "^18.0.0"
+    }
+}

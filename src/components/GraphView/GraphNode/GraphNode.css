@@ -156,13 +156,13 @@
 }
 
 /* Extension Container */
-.extension-container {
+/* .extension-container {
   margin: 8px 0;
   padding: 8px;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
   background: #f8fafc;
-}
+} */
 
 .extension-loading {
   text-align: center;
