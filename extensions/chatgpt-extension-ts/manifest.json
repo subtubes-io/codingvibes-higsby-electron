@@ -1,0 +1,25 @@
+{
+    "name": "ChatGPT Configuration Extension",
+    "version": "1.0.0",
+    "componentName": "ChatGPTExtension",
+    "description": "A comprehensive ChatGPT configuration and API extension with form controls and environment-based API integration",
+    "author": "CodingVibes",
+    "main": "index.js",
+    "permissions": [
+        "network",
+        "environment"
+    ],
+    "keywords": [
+        "chatgpt",
+        "openai",
+        "ai",
+        "configuration",
+        "api",
+        "typescript",
+        "react"
+    ],
+    "category": "ai",
+    "language": "typescript",
+    "framework": "react",
+    "minAppVersion": "1.0.0"
+}
