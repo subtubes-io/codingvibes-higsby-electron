@@ -3,11 +3,11 @@
   <defs>
     <style>
       .d {
-        fill: #fdb71c;
+        fill: #0000d3;
       }
 
       .e {
-        fill: #402530;
+        fill: #fc7800;
       }
     </style>
   </defs>

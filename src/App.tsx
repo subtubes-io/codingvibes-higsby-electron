@@ -26,6 +26,7 @@ function App() {
                 isCollapsed={isSidebarCollapsed}
                 activeItem={activeMenuItem}
                 onItemClick={handleMenuItemClick}
+                onToggleSidebar={toggleSidebar}
             />
             <MainContent
                 isSidebarCollapsed={isSidebarCollapsed}

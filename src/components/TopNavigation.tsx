@@ -1,28 +1,23 @@
 import React from 'react';
+import higsbyLogo from '../assets/higsby-logo.svg';
 
 interface TopNavigationProps {
-    onToggleSidebar: () => void;
+    onToggleSidebar?: () => void;
     title?: string;
 }
 
 const TopNavigation: React.FC<TopNavigationProps> = ({
-    onToggleSidebar,
+    // onToggleSidebar,
     title = "Higsby"
 }) => {
     return (
         <nav className="fixed top-0 left-0 right-0 h-15 bg-gradient-to-br from-primary-500 to-primary-600 border-b border-white/10 flex items-center justify-between px-5 z-50 backdrop-blur-sm webkit-app-region-drag">
             <div className="flex items-center gap-4">
-                <button
-                    className="webkit-app-region-no-drag bg-transparent border-none text-white cursor-pointer p-2 rounded-md flex items-center justify-center transition-colors duration-200 hover:bg-white/10"
-                    onClick={onToggleSidebar}
-                    aria-label="Toggle sidebar"
-                >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <line x1="3" y1="12" x2="21" y2="12"></line>
-                        <line x1="3" y1="18" x2="21" y2="18"></line>
-                    </svg>
-                </button>
+                <img
+                    src={higsbyLogo}
+                    alt="Higsby Logo"
+                    className="w-8 h-8 webkit-app-region-no-drag"
+                />
                 <h1 className="text-white text-xl font-semibold m-0 tracking-wider">{title}</h1>
             </div>
 
