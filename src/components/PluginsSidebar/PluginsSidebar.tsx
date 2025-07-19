@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { useSnapshot } from 'valtio';
 import { ExtensionManifest } from '../../types/extension';
 import { extensionService } from '../../services/extensionService';
+import { sidebarStore, sidebarActions } from '../../stores/sidebarStore';
 import './PluginsSidebar.css';
 
 interface PluginsSidebarProps {
-    isCollapsed: boolean;
-    onToggle: () => void;
     onAddToGraph: (plugin: ExtensionManifest) => void;
 }
 
 const PluginsSidebar: React.FC<PluginsSidebarProps> = ({
-    isCollapsed,
-    onToggle,
     onAddToGraph
 }) => {
+    const sidebars = useSnapshot(sidebarStore);
+    const isCollapsed = !sidebars.plugins;
     const [plugins, setPlugins] = useState<ExtensionManifest[]>([]);
     const [filteredPlugins, setFilteredPlugins] = useState<ExtensionManifest[]>([]);
     const [loading, setLoading] = useState(true);
@@ -81,7 +81,7 @@ const PluginsSidebar: React.FC<PluginsSidebarProps> = ({
             <div className="plugins-sidebar-header">
                 <button
                     className="plugins-toggle-button"
-                    onClick={onToggle}
+                    onClick={() => sidebarActions.toggleSidebar('plugins')}
                     title={isCollapsed ? 'Expand Plugins Panel' : 'Collapse Plugins Panel'}
                 >
                     <span className="toggle-icon">

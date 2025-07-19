@@ -17,6 +17,9 @@ interface GraphControlsProps {
     onSaveAsGraph?: () => void;
     onNewGraph?: () => void;
     currentGraphId?: string;
+    // Sidebar controls
+    onToggleAllSidebars: () => void;
+    areSidebarsOpen: boolean;
 }
 
 const GraphControls: React.FC<GraphControlsProps> = ({
@@ -33,7 +36,9 @@ const GraphControls: React.FC<GraphControlsProps> = ({
     onSaveCurrentGraph,
     onSaveAsGraph,
     onNewGraph,
-    currentGraphId
+    currentGraphId,
+    onToggleAllSidebars,
+    areSidebarsOpen
 }) => {
     return (
         <div className="graph-controls">
@@ -161,6 +166,30 @@ const GraphControls: React.FC<GraphControlsProps> = ({
                 <div className="zoom-indicator" title={`Zoom: ${Math.round(zoom * 100)}%`}>
                     {Math.round(zoom * 100)}%
                 </div>
+            </div>
+
+            {/* Divider */}
+            <div className="graph-controls-divider"></div>
+
+            {/* Sidebar Controls Section */}
+            <div className="graph-controls-section">
+                <button
+                    className={`graph-control-button ${areSidebarsOpen ? 'active' : ''}`}
+                    title={areSidebarsOpen ? "Close All Sidebars" : "Open All Sidebars"}
+                    onClick={onToggleAllSidebars}
+                >
+                    {areSidebarsOpen ? (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M15 6L9 12L15 18" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M9 6L15 12L9 18" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    ) : (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M9 6L15 12L9 18" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M15 6L9 12L15 18" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    )}
+                </button>
             </div>
 
             {/* Divider */}

@@ -1,4 +1,6 @@
 import React from 'react';
+import { useSnapshot } from 'valtio';
+import { sidebarStore } from '../stores/sidebarStore';
 
 interface MenuItem {
     id: string;
@@ -9,10 +11,8 @@ interface MenuItem {
 }
 
 interface SidebarProps {
-    isCollapsed: boolean;
     activeItem: string;
     onItemClick: (itemId: string) => void;
-    onToggleSidebar: () => void;
     title?: string;
 }
 
@@ -118,7 +118,9 @@ const menuItems: MenuItem[] = [
     // },
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, activeItem, onItemClick, title = "Higsby" }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeItem, onItemClick, title = "Higsby" }) => {
+    const sidebars = useSnapshot(sidebarStore);
+    const isCollapsed = !sidebars.main;
     return (
         <aside className={`fixed top-15 left-0 bottom-0 bg-gray-900 border-r border-gray-700 py-5 overflow-y-auto transition-all duration-300 z-40 ${isCollapsed ? 'w-18' : 'w-70'
             } md:block ${isCollapsed ? '' : 'md:w-70'}`}>

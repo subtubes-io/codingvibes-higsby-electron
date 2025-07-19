@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSnapshot } from 'valtio';
 import { SavedGraph, GraphStorageService } from '../../services/graphStorageService';
+import { sidebarStore, sidebarActions } from '../../stores/sidebarStore';
 import './GraphsSidebar.css';
 
 interface GraphsSidebarProps {
-    isCollapsed: boolean;
-    onToggle: () => void;
     onLoadGraph: (graph: SavedGraph) => void;
     currentGraphId?: string;
 }
 
 const GraphsSidebar: React.FC<GraphsSidebarProps> = ({
-    isCollapsed,
-    onToggle,
     onLoadGraph,
     currentGraphId
 }) => {
+    const sidebars = useSnapshot(sidebarStore);
+    const isCollapsed = !sidebars.graphs;
     const [savedGraphs, setSavedGraphs] = useState<SavedGraph[]>([]);
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -79,7 +79,7 @@ const GraphsSidebar: React.FC<GraphsSidebarProps> = ({
             <div className="graphs-sidebar-header">
                 <button
                     className="graphs-sidebar-toggle"
-                    onClick={onToggle}
+                    onClick={() => sidebarActions.toggleSidebar('graphs')}
                     title={isCollapsed ? 'Expand Graphs' : 'Collapse Graphs'}
                 >
                     <span className="toggle-icon">

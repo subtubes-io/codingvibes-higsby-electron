@@ -1,15 +1,13 @@
 import { useState } from 'react'
+import { useSnapshot } from 'valtio'
 import TopNavigation from './components/TopNavigation'
 import Sidebar from './components/Sidebar'
 import MainContent from './components/MainContent'
+import { sidebarStore, sidebarActions } from './stores/sidebarStore'
 
 function App() {
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
     const [activeMenuItem, setActiveMenuItem] = useState('dashboard')
-
-    const toggleSidebar = () => {
-        setIsSidebarCollapsed(!isSidebarCollapsed)
-    }
+    const sidebars = useSnapshot(sidebarStore)
 
     const handleMenuItemClick = (itemId: string) => {
         setActiveMenuItem(itemId)
@@ -18,18 +16,16 @@ function App() {
     return (
         <div className="w-screen h-screen m-0 p-0 bg-primary-gradient overflow-hidden">
             <TopNavigation
-                onToggleSidebar={toggleSidebar}
+                onToggleSidebar={() => sidebarActions.toggleSidebar('main')}
                 title="Higsby"
             />
 
             <Sidebar
-                isCollapsed={isSidebarCollapsed}
                 activeItem={activeMenuItem}
                 onItemClick={handleMenuItemClick}
-                onToggleSidebar={toggleSidebar}
             />
             <MainContent
-                isSidebarCollapsed={isSidebarCollapsed}
+                isSidebarCollapsed={!sidebars.main}
                 activeSection={activeMenuItem}
             />
         </div>

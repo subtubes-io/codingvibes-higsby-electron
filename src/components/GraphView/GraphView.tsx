@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useSnapshot } from 'valtio';
 import { ExtensionManifest } from '../../types/extension';
 import { ExtensionService } from '../../services/extensionService';
 import PluginsSidebar from '../PluginsSidebar';
@@ -10,6 +11,7 @@ import ToastContainer from '../Toast/ToastContainer';
 import { useToast } from '../../hooks/useToast';
 import DebugConsole from './DebugConsole';
 import loggingService from '../../services/LoggingService';
+import { sidebarStore, sidebarActions } from '../../stores/sidebarStore';
 import './GraphView.css';
 
 // Add interface for extension components
@@ -18,8 +20,7 @@ interface ExtensionComponent extends React.FC {
 }
 
 const GraphView: React.FC = () => {
-    const [isPluginsSidebarCollapsed, setIsPluginsSidebarCollapsed] = useState(false);
-    const [isGraphsSidebarCollapsed, setIsGraphsSidebarCollapsed] = useState(false);
+    const sidebars = useSnapshot(sidebarStore);
     const [graphNodes, setGraphNodes] = useState<any[]>([]);
     const [zoom, setZoom] = useState(1);
     const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
@@ -66,14 +67,6 @@ const GraphView: React.FC = () => {
     const animationFrameRef = useRef<number | null>(null);
     const mousePositionRef = useRef({ x: 0, y: 0 });
     const graphWorkspaceRef = useRef<HTMLDivElement>(null);
-
-    const handleTogglePluginsSidebar = useCallback(() => {
-        setIsPluginsSidebarCollapsed(prev => !prev);
-    }, []);
-
-    const handleToggleGraphsSidebar = useCallback(() => {
-        setIsGraphsSidebarCollapsed(prev => !prev);
-    }, []);
 
     const handleStartEditingTitle = useCallback(() => {
         setIsEditingTitle(true);
@@ -536,6 +529,15 @@ const GraphView: React.FC = () => {
         }
     }, [graphNodes.length, handleSaveCurrentGraph, addToast]);
 
+    const handleToggleAllSidebars = useCallback(() => {
+        const anyOpen = sidebarActions.isAnySidebarOpen();
+        if (anyOpen) {
+            sidebarActions.closeAll();
+        } else {
+            sidebarActions.openAll();
+        }
+    }, []);
+
     // Load extension functions using ExtensionService
     const loadExtensionFunctions = useCallback(async (plugin: ExtensionManifest) => {
         try {
@@ -948,14 +950,12 @@ const GraphView: React.FC = () => {
 
             {/* Graphs Sidebar */}
             <GraphsSidebar
-                isCollapsed={isGraphsSidebarCollapsed}
-                onToggle={handleToggleGraphsSidebar}
                 onLoadGraph={handleLoadGraph}
                 currentGraphId={currentGraphId}
             />
 
             {/* Main Graph Canvas */}
-            <div className={`graph-canvas ${isPluginsSidebarCollapsed ? 'plugins-collapsed' : ''} ${isGraphsSidebarCollapsed ? 'graphs-collapsed' : ''}`}>
+            <div className={`graph-canvas ${!sidebars.plugins ? 'plugins-collapsed' : ''} ${!sidebars.graphs ? 'graphs-collapsed' : ''}`}>
                 <div className="graph-header">
                     <div className="graph-title-section">
                         <div className="graph-header-inline">
@@ -1018,6 +1018,8 @@ const GraphView: React.FC = () => {
                         onSaveAsGraph={handleSaveAsGraph}
                         onNewGraph={handleNewGraph}
                         currentGraphId={currentGraphId}
+                        onToggleAllSidebars={handleToggleAllSidebars}
+                        areSidebarsOpen={sidebarActions.isAnySidebarOpen()}
                     />
                 </div>
 
@@ -1052,8 +1054,6 @@ const GraphView: React.FC = () => {
 
             {/* Plugins Sidebar */}
             <PluginsSidebar
-                isCollapsed={isPluginsSidebarCollapsed}
-                onToggle={handleTogglePluginsSidebar}
                 onAddToGraph={handleAddToGraph}
             />
 
