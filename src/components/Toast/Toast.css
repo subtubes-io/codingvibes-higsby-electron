@@ -53,7 +53,8 @@
 
 /* Toast types */
 .toast-success {
-    background: linear-gradient(135deg, #024b47 0%, #292929 100%);
+    /* background: linear-gradient(135deg, #024b47 0%, #292929 100%); */
+     background: linear-gradient(135deg, #101111 0%, #292929 100%);
 }
 
 .toast-error {
