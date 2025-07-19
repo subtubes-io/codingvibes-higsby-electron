@@ -51,6 +51,10 @@ const GraphNode: React.FC<GraphNodeProps> = ({
     const nodeWidth = node.size?.width || defaultWidth;
     const nodeHeight = node.size?.height || defaultHeight;
 
+    // Round dimensions once for display
+    const roundedWidth = Math.round(nodeWidth);
+    const roundedHeight = Math.round(nodeHeight);
+
     const handleResizeStart = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -104,6 +108,13 @@ const GraphNode: React.FC<GraphNodeProps> = ({
                 height: nodeHeight,
             }}
         >
+            {/* Dimension Display - Only show during resize */}
+            {isResizing ? (
+                <div className="node-dimensions" title={`Node dimensions: ${roundedWidth}×${roundedHeight} pixels`}>
+                    {roundedWidth}×{roundedHeight}
+                </div>
+            ) : null}
+
             <div
                 className={`graph-node ${dragState.isDragging && dragState.nodeId === node.id ? 'dragging' : ''}`}
                 style={{

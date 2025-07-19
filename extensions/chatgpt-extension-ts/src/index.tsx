@@ -62,16 +62,21 @@ const ChatGPTExtension: ChatGPTExtensionComponent = () => {
         }));
     };
 
-    // Styles
+    // Styles - Made responsive
     const containerStyle: React.CSSProperties = {
-        padding: '2rem',
-        color: '#1f2937', // Dark gray text for visibility
-        borderRadius: '12px',
-        maxWidth: '800px',
-        margin: '0 auto',
-        // boxShadow: '0 8px 32px rgba(30, 64, 175, 0.3)',
+        padding: '1rem',
+        color: '#1f2937',
+        borderRadius: '8px',
+        height: '100%',
+        width: '100%',
+        margin: '0',
         border: '1px solid #e5e7eb',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        boxSizing: 'border-box',
+        overflow: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.75rem'
     };
 
     const titleStyle: React.CSSProperties = {
@@ -82,30 +87,31 @@ const ChatGPTExtension: ChatGPTExtensionComponent = () => {
     };
 
     const formGroupStyle: React.CSSProperties = {
-        marginBottom: '1.5rem'
+        marginBottom: '0.75rem',
+        flex: '0 0 auto'
     };
 
     const labelStyle: React.CSSProperties = {
         display: 'block',
-        marginBottom: '0.5rem',
-        fontSize: '1.1rem',
+        marginBottom: '0.25rem',
+        fontSize: 'clamp(0.8rem, 2.5vw, 1rem)',
         fontWeight: '600'
     };
 
     const inputStyle: React.CSSProperties = {
         width: '100%',
-        padding: '0.75rem',
-        borderRadius: '8px',
+        padding: 'clamp(0.4rem, 1.5vw, 0.6rem)',
+        borderRadius: '6px',
         border: '1px solid #d1d5db',
         background: '#ffffff',
         color: '#1f2937',
-        fontSize: '1rem',
+        fontSize: 'clamp(0.75rem, 2vw, 0.9rem)',
         boxSizing: 'border-box'
     };
 
     const textareaStyle: React.CSSProperties = {
         ...inputStyle,
-        minHeight: '100px',
+        minHeight: 'clamp(60px, 15vh, 80px)',
         resize: 'vertical'
     };
 
@@ -117,13 +123,14 @@ const ChatGPTExtension: ChatGPTExtensionComponent = () => {
     const sliderContainerStyle: React.CSSProperties = {
         display: 'flex',
         alignItems: 'center',
-        gap: '1rem'
+        gap: 'clamp(0.5rem, 2vw, 0.75rem)',
+        fontSize: 'clamp(0.7rem, 1.8vw, 0.85rem)'
     };
 
     const sliderStyle: React.CSSProperties = {
         flex: 1,
-        height: '6px',
-        borderRadius: '3px',
+        height: '4px',
+        borderRadius: '2px',
         background: '#e5e7eb',
         outline: 'none',
         cursor: 'pointer'
@@ -187,7 +194,7 @@ const ChatGPTExtension: ChatGPTExtensionComponent = () => {
                     />
                     <span>2</span>
                 </div>
-                <small style={{ opacity: 0.8, fontSize: '0.85rem' }}>
+                <small style={{ opacity: 0.8, fontSize: 'clamp(0.65rem, 1.5vw, 0.75rem)' }}>
                     Higher values make output more random, lower values more focused
                 </small>
             </div>
@@ -203,7 +210,7 @@ const ChatGPTExtension: ChatGPTExtensionComponent = () => {
                     max="4000"
                     placeholder="Maximum response length (tokens)"
                 />
-                <small style={{ opacity: 0.8, fontSize: '0.85rem', display: 'block', marginTop: '0.25rem' }}>
+                <small style={{ opacity: 0.8, fontSize: 'clamp(0.65rem, 1.5vw, 0.75rem)', display: 'block', marginTop: '0.25rem' }}>
                     Approximate: 1 token ≈ 0.75 words
                 </small>
             </div>
