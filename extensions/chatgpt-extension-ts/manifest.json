@@ -21,5 +21,41 @@
     "category": "ai",
     "language": "typescript",
     "framework": "react",
-    "minAppVersion": "1.0.0"
+    "minAppVersion": "1.0.0",
+    "ports": {
+        "inputs": [
+            {
+                "name": "systemPrompt",
+                "category": "string",
+                "description": "System message to set AI behavior and context"
+            },
+            {
+                "name": "userPrompt",
+                "category": "string",
+                "description": "User question or request for the AI"
+            },
+            {
+                "name": "model",
+                "category": "string",
+                "description": "OpenAI model to use (e.g., gpt-4o, gpt-3.5-turbo)"
+            },
+            {
+                "name": "temperature",
+                "category": "number",
+                "description": "Response creativity level (0.0-2.0)"
+            },
+            {
+                "name": "maxTokens",
+                "category": "number",
+                "description": "Maximum response length in tokens"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "response",
+                "category": "string",
+                "description": "Generated ChatGPT response text"
+            }
+        ]
+    }
 }
