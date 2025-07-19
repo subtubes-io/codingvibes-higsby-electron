@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { ExtensionUploadResult } from '../types/extension';
+import { ExtensionUploadResult, PortDefinition } from '../types/extension';
 
 export interface ExtensionManifest {
     id: string;
@@ -23,6 +23,11 @@ export interface ExtensionManifest {
     updatedAt: string;
     status: 'installed' | 'enabled' | 'disabled' | 'error';
     errorMessage?: string;
+    /** Port configuration for the extension */
+    ports?: {
+        inputs?: PortDefinition[];
+        outputs?: PortDefinition[];
+    };
 }
 
 export class ExtensionService {

@@ -1,5 +1,6 @@
 import React from 'react';
 import { ExtensionManifest } from '../../../types/extension';
+import { NodeService } from '../../../services/NodeService';
 import NodeContent from './NodeContent';
 import './GraphNode.css';
 
@@ -148,16 +149,57 @@ const GraphNode: React.FC<GraphNodeProps> = ({
                         loadedExtensions={loadedExtensions}
                     />
                 </div>
-
-                <div className="node-ports">
-                    <div className="input-ports">
-                        <div className="port input-port" title="Input"></div>
-                    </div>
-                    <div className="output-ports">
-                        <div className="port output-port" title="Output"></div>
-                    </div>
-                </div>
             </div>
+
+            {/* Dynamic Ports based on manifest - positioned outside node wrapper */}
+            {(() => {
+                console.log("GraphNode Debug - node.plugin:", node.plugin);
+                console.log("GraphNode Debug - node.plugin?.ports:", node.plugin?.ports);
+                return null;
+            })()}
+            {node.plugin?.ports && (
+                <div className="node-ports">
+                    {/* Input Ports - Left side */}
+                    {node.plugin.ports.inputs && node.plugin.ports.inputs.length > 0 && (
+                        <div className="input-ports">
+                            {node.plugin.ports.inputs.map((portDef, index) => (
+                                <div
+                                    key={`input-${index}`}
+                                    className="port input-port"
+                                    style={{
+                                        color: NodeService.getPortColor(portDef.category)
+                                    }}
+                                    title={`${portDef.name} (${portDef.category})${portDef.description ? `: ${portDef.description}` : ''}`}
+                                >
+                                    <div className="port-connector"></div>
+                                    <span className="port-label">{portDef.name}</span>
+                                    <span className="port-type">{portDef.category}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Output Ports - Right side */}
+                    {node.plugin.ports.outputs && node.plugin.ports.outputs.length > 0 && (
+                        <div className="output-ports">
+                            {node.plugin.ports.outputs.map((portDef, index) => (
+                                <div
+                                    key={`output-${index}`}
+                                    className="port output-port"
+                                    style={{
+                                        color: NodeService.getPortColor(portDef.category)
+                                    }}
+                                    title={`${portDef.name} (${portDef.category})${portDef.description ? `: ${portDef.description}` : ''}`}
+                                >
+                                    <span className="port-type">{portDef.category}</span>
+                                    <span className="port-label">{portDef.name}</span>
+                                    <div className="port-connector"></div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Resize Handle - Outside the node */}
             <div

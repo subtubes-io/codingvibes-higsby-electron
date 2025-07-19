@@ -211,7 +211,7 @@ const GraphView: React.FC = () => {
         }
     }, [graphNodes, zoom, panOffset, currentGraphName, graphStorageService, addToast]);
 
-    // Load extensions when nodes are added
+    // Load extensions when nodes are added and refresh plugin data
     useEffect(() => {
         graphNodes.forEach(async (node) => {
             if (node.plugin && node.plugin.componentName && !loadedExtensions[node.plugin.componentName]) {
@@ -231,6 +231,50 @@ const GraphView: React.FC = () => {
             }
         });
     }, [graphNodes, loadedExtensions, extensionService]);
+
+    // Refresh plugin data from backend for all nodes
+    useEffect(() => {
+        const refreshPluginData = async () => {
+            try {
+                console.log('🔄 Refreshing plugin data from backend...');
+                const availableExtensions = await extensionService.getExtensions();
+                console.log('📦 Available extensions from backend:', availableExtensions);
+
+                setGraphNodes(prev => prev.map(node => {
+                    if (node.plugin && node.plugin.componentName) {
+                        // Find the latest extension data from backend
+                        const latestExtension = availableExtensions.find((ext: ExtensionManifest) =>
+                            ext.componentName === node.plugin.componentName
+                        );
+
+                        if (latestExtension) {
+                            console.log(`🔄 Refreshing plugin data for ${node.name}:`, {
+                                oldPlugin: node.plugin,
+                                newPlugin: latestExtension,
+                                portsAdded: !!latestExtension.ports
+                            });
+                            return {
+                                ...node,
+                                plugin: latestExtension
+                            };
+                        } else {
+                            console.warn(`❌ No matching extension found for ${node.plugin.componentName}`);
+                        }
+                    }
+                    return node;
+                }));
+            } catch (error) {
+                console.error('Failed to refresh plugin data from backend:', error);
+            }
+        };
+
+        // Only refresh if we have nodes with plugins
+        const nodesWithPlugins = graphNodes.filter(node => node.plugin && node.plugin.componentName);
+        if (nodesWithPlugins.length > 0) {
+            console.log(`🎯 Found ${nodesWithPlugins.length} nodes with plugins, refreshing...`);
+            refreshPluginData();
+        }
+    }, [graphNodes.length, extensionService]); // Only run when graph structure changes
 
     const handleImportGraph = useCallback(() => {
         const input = document.createElement('input');

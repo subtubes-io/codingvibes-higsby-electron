@@ -25,6 +25,18 @@ export interface ExtensionManifest {
     updatedAt: string;
     status: 'installed' | 'enabled' | 'disabled' | 'error';
     errorMessage?: string;
+    ports?: {
+        inputs?: Array<{
+            name: string;
+            category: 'string' | 'number' | 'boolean' | 'JSON';
+            description?: string;
+        }>;
+        outputs?: Array<{
+            name: string;
+            category: 'string' | 'number' | 'boolean' | 'JSON';
+            description?: string;
+        }>;
+    };
 }
 
 export class ExtensionService {
@@ -148,7 +160,8 @@ export class ExtensionService {
                         icon: manifest.icon,
                         installedAt: manifestStats.birthtime.toISOString(),
                         updatedAt: manifestStats.mtime.toISOString(),
-                        status: 'installed'
+                        status: 'installed',
+                        ports: manifest.ports // Include port configuration from manifest
                     };
 
                     // Add to our manifest
