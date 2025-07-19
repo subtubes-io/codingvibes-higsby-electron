@@ -23,8 +23,8 @@
     "framework": "react",
     "minAppVersion": "1.0.0",
     "dimensions": {
-        "width": 460,
-        "height": 660
+        "width": 430,
+        "height": 590
     },
     "ports": {
         "inputs": [

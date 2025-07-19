@@ -139,7 +139,7 @@ const ChatGPTExtension: ChatGPTExtensionComponent = () => {
 
 
     return (
-        <div style={containerStyle}>
+        <>
 
             <div style={formGroupStyle}>
                 <label style={labelStyle}>System Prompt:</label>
@@ -215,7 +215,7 @@ const ChatGPTExtension: ChatGPTExtensionComponent = () => {
                 </small>
             </div>
 
-        </div>
+        </>
     );
 };
 
